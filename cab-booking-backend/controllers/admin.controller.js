@@ -17,7 +17,7 @@ export const registerAdmin = async (req, res) => {
         }
 
         const admin = await Admin.create({
-            username: username.trim(),
+            username: username.trim().toLowerCase(),
             password: password.trim(), // In production, hash this!
         });
 
@@ -35,8 +35,10 @@ export const adminLogin = async (req, res) => {
         const inputUser = (username || "").toString().trim();
         const inputPass = (password || "").toString().trim();
 
-        // 1. Check DB first
-        const dbAdmin = await Admin.findOne({ username: inputUser });
+        // 1. Check DB first (case-insensitive)
+        const dbAdmin = await Admin.findOne({ 
+            username: { $regex: new RegExp(`^${inputUser}$`, "i") } 
+        });
         let isValid = false;
 
         if (dbAdmin && dbAdmin.password === inputPass) {
@@ -51,9 +53,10 @@ export const adminLogin = async (req, res) => {
         }
 
         if (isValid) {
+            console.log(`[Admin Login] Success: ${inputUser}`);
             // ✅ Generate Admin JWT
             const token = jwt.sign(
-                { username: inputUser, role: "admin" },
+                { username: dbAdmin?.username || inputUser, role: "admin" },
                 process.env.JWT_SECRET,
                 { expiresIn: "1d" }
             );
@@ -66,6 +69,7 @@ export const adminLogin = async (req, res) => {
             });
         }
 
+        console.warn(`[Admin Login] Failure: ${inputUser}`);
         return res.status(401).json({
             success: false,
             message: "Invalid admin credentials"
