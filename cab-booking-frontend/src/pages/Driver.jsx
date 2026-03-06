@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import RideRequestModal from "../components/RideRequestModal";
 import LocationAutocomplete from "../components/LocationAutocomplete";
+import "./Driver.css";
 
 export default function Driver() {
   const [orders, setOrders] = useState([]);

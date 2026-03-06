@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { api } from "../api";
 import Navbar from "../components/Navbar";
+import "./Driver.css";
 
 export default function DriverTrip() {
   const { id } = useParams();
