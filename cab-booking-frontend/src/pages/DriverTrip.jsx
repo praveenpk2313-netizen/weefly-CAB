@@ -4,7 +4,8 @@ import axios from "axios";
 import Navbar from "../components/Navbar";
 import "./Driver.css";
 
-const API = import.meta.env.VITE_API_URL;
+const rawAPI = import.meta.env.VITE_API_URL || "";
+const API = rawAPI.endsWith("/api") ? rawAPI : `${rawAPI}/api`;
 
 export default function DriverTrip() {
   const { id } = useParams();

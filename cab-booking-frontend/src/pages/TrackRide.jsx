@@ -3,7 +3,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./TrackRide.css";
 
-const API = import.meta.env.VITE_API_URL;
+const rawAPI = import.meta.env.VITE_API_URL || "";
+const API = rawAPI.endsWith("/api") ? rawAPI : `${rawAPI}/api`;
 
 const STATUS_STEPS = ["pending", "accepted", "arrived", "started", "completed"];
 

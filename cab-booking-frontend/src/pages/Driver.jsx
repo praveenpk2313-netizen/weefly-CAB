@@ -6,7 +6,8 @@ import RideRequestModal from "../components/RideRequestModal";
 import LocationAutocomplete from "../components/LocationAutocomplete";
 import "./Driver.css";
 
-const API = import.meta.env.VITE_API_URL;
+const rawAPI = import.meta.env.VITE_API_URL || "";
+const API = rawAPI.endsWith("/api") ? rawAPI : `${rawAPI}/api`;
 
 export default function Driver() {
   const [orders, setOrders] = useState([]);

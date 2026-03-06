@@ -3,7 +3,8 @@ import axios from 'axios';
 import Navbar from '../components/Navbar';
 import './AdminDashboard.css';
 
-const API = import.meta.env.VITE_API_URL;
+const rawAPI = import.meta.env.VITE_API_URL || "";
+const API = rawAPI.endsWith("/api") ? rawAPI : `${rawAPI}/api`;
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');

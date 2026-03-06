@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './LocationAutocomplete.css';
 
-const API_URL = import.meta.env.VITE_API_URL;
+const rawAPI = import.meta.env.VITE_API_URL || "";
+const API_URL = rawAPI.endsWith("/api") ? rawAPI : `${rawAPI}/api`;
 const DEBOUNCE_DELAY = 400;
 
 const LocationAutocomplete = ({ placeholder, value, onChange, onSelect }) => {
