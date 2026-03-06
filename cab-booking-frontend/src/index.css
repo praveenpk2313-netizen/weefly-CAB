@@ -1,0 +1,31 @@
+:root {
+  --primary-yellow: #facc15;
+  /* Taxi Yellow */
+  --primary-yellow-glow: rgba(250, 204, 21, 0.4);
+  --deep-night: #0a0a0a;
+  --glass-bg: rgba(15, 23, 42, 0.7);
+  --glass-border: rgba(250, 204, 21, 0.2);
+  --text-main: #ffffff;
+  --text-accent: #facc15;
+  --text-dim: rgba(255, 255, 255, 0.6);
+  --card-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.7);
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', 'Poppins', sans-serif;
+  color: var(--text-main);
+  background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
+    url("./OIP.webp") no-repeat center center fixed !important;
+  background-size: cover !important;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--deep-night) !important;
+}
+
+* {
+  box-sizing: border-box;
+}

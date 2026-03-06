@@ -1,0 +1,29 @@
+import express from "express";
+import {
+  createBooking,
+  getSingleBooking,
+  getAvailableBookings,
+  acceptRide,
+  verifyStartOtp,
+  updateRideStatus,
+  getDriverActiveTrip,
+  getBookingsByPhone,
+} from "../controllers/booking.controller.js";
+
+const router = express.Router();
+
+// customer
+router.post("/create", createBooking);
+router.get("/history/:phone", getBookingsByPhone);
+
+// driver
+router.get("/available", getAvailableBookings);
+router.post("/accept", acceptRide);
+router.post("/update-status", updateRideStatus);
+router.post("/verify-start-otp", verifyStartOtp);
+router.get("/driver-active/:driverId", getDriverActiveTrip);
+
+// trip detail page
+router.get("/:id", getSingleBooking);
+
+export default router;

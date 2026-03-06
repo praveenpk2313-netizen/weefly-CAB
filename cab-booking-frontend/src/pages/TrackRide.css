@@ -1,0 +1,488 @@
+/* ── TrackRide.css ── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+.track-wrap {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+    font-family: 'Inter', sans-serif;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ── Header ── */
+.track-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 28px;
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.track-title {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.back-btn {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.8);
+    border-radius: 10px;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.back-btn:hover {
+    background: rgba(255, 255, 255, 0.14);
+    color: #fff;
+}
+
+/* ── Content ── */
+.track-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    padding: 28px 16px 48px;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    box-sizing: border-box;
+}
+
+/* ── Loading ── */
+.track-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    gap: 16px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.spinner {
+    width: 42px;
+    height: 42px;
+    border: 3px solid rgba(250, 204, 21, 0.2);
+    border-top-color: #facc15;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ── Cards ── */
+.track-card {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 22px 20px;
+    box-sizing: border-box;
+}
+
+.card-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: rgba(255, 255, 255, 0.4);
+    margin-bottom: 14px;
+}
+
+/* ── Status Badge ── */
+.status-badge {
+    display: inline-block;
+    padding: 7px 16px;
+    border-radius: 50px;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 18px;
+}
+
+/* ── Step Progress Bar ── */
+.step-bar {
+    display: flex;
+    align-items: center;
+    margin-bottom: 22px;
+    gap: 0;
+}
+
+.step-item {
+    display: flex;
+    align-items: center;
+    flex: 1;
+}
+
+.step-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.15);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    flex-shrink: 0;
+    transition: all 0.4s;
+}
+
+.step-dot.active {
+    border-color: transparent;
+}
+
+.step-line {
+    flex: 1;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    transition: background 0.4s;
+}
+
+.step-line.active {
+    background: #4ade80;
+}
+
+/* ── Route ── */
+.route-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin-bottom: 20px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 14px;
+    padding: 14px 16px;
+}
+
+.route-point {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.route-icon {
+    font-size: 18px;
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+
+.route-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: rgba(255, 255, 255, 0.4);
+    margin-bottom: 2px;
+}
+
+.route-value {
+    font-size: 13px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.85);
+    line-height: 1.4;
+}
+
+.route-connector {
+    width: 2px;
+    height: 18px;
+    background: rgba(255, 255, 255, 0.15);
+    margin: 6px 0 6px 9px;
+    border-radius: 2px;
+}
+
+/* ── Meta Grid ── */
+.meta-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 10px 12px;
+}
+
+.meta-icon {
+    font-size: 18px;
+}
+
+.meta-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.4);
+    margin-bottom: 2px;
+}
+
+.meta-value {
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.fare-value {
+    color: #facc15;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.id-value {
+    font-family: monospace;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+/* ── Waiting Card ── */
+.waiting-card {
+    text-align: center;
+    padding: 32px 20px;
+}
+
+.pulse-rings {
+    position: relative;
+    width: 90px;
+    height: 90px;
+    margin: 0 auto 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 2px solid rgba(250, 204, 21, 0.4);
+    animation: pulse-ring 2s ease-out infinite;
+}
+
+.ring1 {
+    width: 90px;
+    height: 90px;
+    animation-delay: 0s;
+}
+
+.ring2 {
+    width: 66px;
+    height: 66px;
+    animation-delay: 0.5s;
+}
+
+.ring3 {
+    width: 44px;
+    height: 44px;
+    animation-delay: 1s;
+}
+
+@keyframes pulse-ring {
+    0% {
+        transform: scale(0.8);
+        opacity: 0.8;
+    }
+
+    100% {
+        transform: scale(1.3);
+        opacity: 0;
+    }
+}
+
+.car-emoji {
+    font-size: 28px;
+    z-index: 1;
+    animation: bob 1.5s ease-in-out infinite;
+}
+
+@keyframes bob {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+.waiting-text {
+    font-size: 15px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.85);
+    margin: 0 0 6px;
+}
+
+.waiting-sub {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.4);
+    margin: 0;
+}
+
+/* ── Driver Card ── */
+.driver-card {
+    border: 1px solid rgba(74, 222, 128, 0.3);
+    background: rgba(74, 222, 128, 0.06);
+}
+
+.slide-in {
+    animation: slideIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.driver-avatar-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 16px;
+}
+
+.driver-avatar {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #4ade80, #22d3ee);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    font-weight: 800;
+    color: #000;
+    flex-shrink: 0;
+    box-shadow: 0 0 20px rgba(74, 222, 128, 0.4);
+}
+
+.driver-info {
+    flex: 1;
+}
+
+.driver-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+}
+
+.driver-sub {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.5);
+    margin-top: 2px;
+}
+
+.call-btn {
+    background: rgba(74, 222, 128, 0.15);
+    border: 1px solid rgba(74, 222, 128, 0.4);
+    color: #4ade80;
+    border-radius: 10px;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.call-btn:hover {
+    background: rgba(74, 222, 128, 0.25);
+}
+
+.driver-meta-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 4px;
+}
+
+.driver-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 12px;
+    padding: 10px 12px;
+}
+
+.arrived-pill {
+    margin-top: 14px;
+    background: rgba(96, 165, 250, 0.15);
+    border: 1px solid rgba(96, 165, 250, 0.4);
+    color: #60a5fa;
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    text-align: center;
+}
+
+/* ── Completed Card ── */
+.completed-card {
+    text-align: center;
+    border: 1px solid rgba(74, 222, 128, 0.3);
+    padding: 36px 20px;
+}
+
+.completed-icon {
+    font-size: 48px;
+    margin-bottom: 10px;
+}
+
+.completed-text {
+    font-size: 22px;
+    font-weight: 800;
+    margin-bottom: 6px;
+}
+
+.completed-sub {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.5);
+    margin-bottom: 14px;
+}
+
+.completed-fare {
+    font-size: 18px;
+    color: #facc15;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+.book-again-btn {
+    background: linear-gradient(135deg, #facc15, #f59e0b);
+    color: #000;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 28px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    transition: opacity 0.2s;
+}
+
+.book-again-btn:hover {
+    opacity: 0.88;
+}

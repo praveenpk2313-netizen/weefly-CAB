@@ -1,0 +1,96 @@
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    z-index: 2000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 24px;
+}
+
+.rating-modal {
+    max-width: 400px;
+    width: 100%;
+    padding: 40px;
+    text-align: center;
+}
+
+.modal-header h3 {
+    margin: 0 0 8px 0;
+    font-size: 24px;
+    font-weight: 800;
+    color: #fff;
+}
+
+.modal-header p {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 15px;
+}
+
+.star-rating {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin: 32px 0;
+}
+
+.star-btn {
+    background: none;
+    border: none;
+    font-size: 40px;
+    color: rgba(255, 255, 255, 0.1);
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.star-btn.active {
+    color: var(--primary-yellow);
+    text-shadow: 0 0 20px var(--primary-yellow-glow);
+    transform: scale(1.2);
+}
+
+.rating-comment {
+    width: 100%;
+    height: 100px;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 14px;
+    padding: 16px;
+    color: #fff;
+    font-family: inherit;
+    font-size: 14px;
+    resize: none;
+    margin-bottom: 24px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.rating-comment:focus {
+    border-color: var(--primary-yellow);
+    box-shadow: 0 0 0 4px var(--primary-yellow-glow);
+}
+
+.modal-actions {
+    display: flex;
+    gap: 16px;
+}
+
+.modal-actions button {
+    flex: 1;
+}
+
+.submit-btn {
+    padding: 12px !important;
+    font-size: 14px !important;
+}
+
+@media (max-width: 480px) {
+    .rating-modal {
+        padding: 32px 24px;
+    }
+}

@@ -1,0 +1,7 @@
+/* Body background handled by global index.css */
+body {
+  font-family: 'Inter', 'Poppins', sans-serif;
+  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+}

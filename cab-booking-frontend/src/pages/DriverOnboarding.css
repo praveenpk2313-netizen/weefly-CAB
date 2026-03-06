@@ -1,0 +1,127 @@
+.onboarding-page-wrapper {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.onboarding-container {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 100px 24px 40px;
+}
+
+.onboarding-card {
+    max-width: 500px;
+    width: 100%;
+}
+
+.onboarding-header {
+    text-align: center;
+    margin-bottom: 32px;
+}
+
+.step-indicator {
+    display: inline-block;
+    padding: 4px 12px;
+    background: var(--primary-yellow);
+    color: var(--deep-night);
+    border-radius: 50px;
+    font-size: 12px;
+    font-weight: 800;
+    margin-bottom: 16px;
+    text-transform: uppercase;
+    box-shadow: 0 0 10px var(--primary-yellow-glow);
+}
+
+.step-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 24px;
+    text-align: center;
+}
+
+.form-step {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.button-group-row {
+    display: flex;
+    gap: 16px;
+    margin-top: 12px;
+}
+
+.button-group-row button {
+    flex: 1;
+}
+
+.document-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    margin-bottom: 12px;
+}
+
+.doc-upload-box {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px dashed rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+}
+
+.doc-upload-box:hover {
+    border-color: var(--primary-yellow);
+    background: rgba(250, 204, 21, 0.05);
+}
+
+.doc-upload-box label:first-child {
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.file-label {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: background 0.2s;
+}
+
+.file-label:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.animate-fade-in {
+    animation: fadeInSlide 0.4s ease-out;
+}
+
+@keyframes fadeInSlide {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 480px) {
+    .onboarding-card {
+        padding: 32px 24px;
+    }
+}
