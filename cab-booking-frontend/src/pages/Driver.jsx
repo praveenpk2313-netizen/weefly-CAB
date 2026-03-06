@@ -1,13 +1,9 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import { api } from "../api";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import RideRequestModal from "../components/RideRequestModal";
 import LocationAutocomplete from "../components/LocationAutocomplete";
-import "./Driver.css";
-
-const rawAPI = import.meta.env.VITE_API_URL || "";
-const API = rawAPI.endsWith("/api") ? rawAPI : `${rawAPI}/api`;
 
 export default function Driver() {
   const [orders, setOrders] = useState([]);
@@ -64,8 +60,8 @@ export default function Driver() {
     try {
       setLoading(true);
       const [availRes, activeRes] = await Promise.all([
-        axios.get(`${API}/booking/available`),
-        axios.get(`${API}/booking/driver-active/${DRIVER_ID}`),
+        api.get("/booking/available"),
+        api.get(`/booking/driver-active/${DRIVER_ID}`),
       ]);
       const available = Array.isArray(availRes.data) ? availRes.data : [];
       setOrders(available);
@@ -102,7 +98,7 @@ export default function Driver() {
   const accept = async (bookingId) => {
     try {
       setLoading(true);
-      const res = await axios.post(`${API}/booking/accept`, {
+      const res = await api.post("/booking/accept", {
         bookingId,
         driverId: DRIVER_ID,
         driverName: driver?.name || "Driver",

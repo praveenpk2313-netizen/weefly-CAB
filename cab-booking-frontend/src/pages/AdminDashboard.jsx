@@ -1,10 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import Navbar from '../components/Navbar';
-import './AdminDashboard.css';
-
-const rawAPI = import.meta.env.VITE_API_URL || "";
-const API = rawAPI.endsWith("/api") ? rawAPI : `${rawAPI}/api`;
+import { api } from "../api";
+import Navbar from "../components/Navbar";
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -22,9 +18,9 @@ const AdminDashboard = () => {
       try {
         setLoading(true);
         const [statsRes, tripsRes, driversRes] = await Promise.all([
-          axios.get(`${API}/admin/stats`),
-          axios.get(`${API}/admin/trips`),
-          axios.get(`${API}/admin/drivers`),
+          api.get("/admin/stats"),
+          api.get("/admin/trips"),
+          api.get("/admin/drivers"),
         ]);
         setStats(statsRes.data);
         setTrips(tripsRes.data);

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import { api } from "../api";
 import {
   MapContainer,
   TileLayer,
@@ -179,7 +179,7 @@ export default function BookRide() {
       setLoading(true);
       const fare = baseFare + distanceKm * rates[selectedCab];
 
-      const res = await axios.post("/api/booking/create", {
+      const res = await api.post("/booking/create", {
         phone: localStorage.getItem("phone"),
         pickup,
         drop,

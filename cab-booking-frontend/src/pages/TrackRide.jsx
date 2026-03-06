@@ -1,10 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
-import "./TrackRide.css";
-
-const rawAPI = import.meta.env.VITE_API_URL || "";
-const API = rawAPI.endsWith("/api") ? rawAPI : `${rawAPI}/api`;
+import { api } from "../api";
 
 const STATUS_STEPS = ["pending", "accepted", "arrived", "started", "completed"];
 
@@ -35,7 +31,7 @@ export default function TrackRide() {
 
     const fetchBooking = async () => {
         try {
-            const res = await axios.get(`${API}/booking/${id}`);
+            const res = await api.get(`/booking/${id}`);
             const data = res.data;
             setBooking(data);
             if (data.status !== "pending" && data.status !== "cancelled") {

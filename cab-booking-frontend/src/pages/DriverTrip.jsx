@@ -1,11 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import axios from "axios";
+import { api } from "../api";
 import Navbar from "../components/Navbar";
-import "./Driver.css";
-
-const rawAPI = import.meta.env.VITE_API_URL || "";
-const API = rawAPI.endsWith("/api") ? rawAPI : `${rawAPI}/api`;
 
 export default function DriverTrip() {
   const { id } = useParams();
@@ -23,7 +19,7 @@ export default function DriverTrip() {
   const fetchTrip = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(`${API}/booking/${id}`);
+      const res = await api.get(`/booking/${id}`);
       setTrip(res.data);
     } catch (err) {
       console.log("Trip fetch error:", err);
@@ -34,7 +30,7 @@ export default function DriverTrip() {
   };
 
   const updateStatus = async (status) => {
-    await axios.post(`${API}/booking/update-status`, {
+    await api.post("/booking/update-status", {
       bookingId: id,
       status,
     });
@@ -64,7 +60,7 @@ export default function DriverTrip() {
       }
 
       setUpdating(true);
-      const res = await axios.post(`${API}/booking/verify-start-otp`, {
+      const res = await api.post("/booking/verify-start-otp", {
         bookingId: id,
         otp: otp.trim(),
       });
