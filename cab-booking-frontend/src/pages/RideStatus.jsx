@@ -8,7 +8,9 @@ import {
 import Navbar from "../components/Navbar";
 import "./BookRide.css"; // Reuse BookRide styles for consistency
 
-const socket = io("http://localhost:5000");
+const apiBase = import.meta.env.VITE_API_URL || "";
+const socketUrl = apiBase.replace("/api", "").replace("http://", "ws://").replace("https://", "wss://") || "http://localhost:5000";
+const socket = io(socketUrl);
 const mapStyle = { width: "100%", height: "400px", borderRadius: "14px" };
 
 export default function RideStatus({ rideId }) {

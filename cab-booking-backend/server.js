@@ -18,6 +18,7 @@ const ALLOWED_ORIGINS = [
   "http://localhost:5173",
   "http://localhost:5174",
   "http://localhost:5175",
+  "https://weefly-cab.onrender.com",
 ];
 
 // ✅ CORS
@@ -55,7 +56,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: ALLOWED_ORIGINS,
+    origin: "*", // More permissive for deployment
     credentials: true,
     methods: ["GET", "POST"],
   },
