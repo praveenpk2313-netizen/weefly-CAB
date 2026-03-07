@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { api } from "../api";
 import Navbar from "../components/Navbar";
 import "./Signup.css";
@@ -15,6 +15,8 @@ export default function Signup() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const role = location.state?.role || "customer";
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
@@ -27,7 +29,7 @@ export default function Signup() {
         return alert("Please fill all fields");
       }
       setLoading(true);
-      const res = await api.post("/auth/signup", formData);
+      const res = await api.post("/auth/signup", { ...formData, role });
 
       if (res.data.success) {
         alert("Signup successful! Please login.");
@@ -47,7 +49,9 @@ export default function Signup() {
         <div className="glass-card">
           <div className="card-header">
             <h1 className="login-title">Join Wheefly</h1>
-            <p className="login-subtitle">Experience luxury travel at your fingertips</p>
+            <p className="login-subtitle">
+              {role === 'driver' ? 'Register and start earning as a pro driver' : 'Experience luxury travel at your fingertips'}
+            </p>
           </div>
 
           <form className="login-form" onSubmit={handleSignup}>

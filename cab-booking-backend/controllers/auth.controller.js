@@ -22,7 +22,7 @@ export const signup = async (req, res) => {
       phone,
       email,
       password, // In production, hash this!
-      role: "customer"
+      role: req.body.role || "customer"
     });
 
     res.status(201).json({ success: true, message: "User registered successfully", user });

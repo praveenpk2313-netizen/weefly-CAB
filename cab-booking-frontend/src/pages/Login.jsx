@@ -36,7 +36,12 @@ export default function Login() {
           localStorage.setItem("token", res.data.token);
           localStorage.setItem("role", res.data.user.role);
           localStorage.setItem("user", JSON.stringify(res.data.user));
-          navigate("/book");
+          
+          if (res.data.user.role === 'driver') {
+            navigate("/driver");
+          } else {
+            navigate("/book");
+          }
         }
       }
     } catch (err) {
@@ -170,7 +175,7 @@ export default function Login() {
             {activeRole === 'admin' ? (
               <p>New administrator? <span className="link-text" onClick={() => navigate("/admin/register")}>Register account</span></p>
             ) : (
-              <p>Don't have an account? <span className="link-text" onClick={() => navigate("/signup")}>Sign Up</span></p>
+              <p>Don't have an account? <span className="link-text" onClick={() => navigate("/signup", { state: { role: activeRole } })}>Sign Up</span></p>
             )}
           </div>
         </div>
