@@ -50,6 +50,8 @@ export default function Driver() {
     fetchUser();
   }, [nav]);
 
+  const DRIVER_ID = driver?.id || driver?._id || "DRIVER-001";
+
   const loadAll = async () => {
     if (!isOnline) return;
     try {

@@ -247,7 +247,7 @@ export default function DriverTrip() {
               </button>
             )}
 
-            {showPayment && !status === "completed" && (
+            {showPayment && status !== "completed" && (
               <div className="payment-selection-section">
                 <h3 className="section-hint">Select Payment Method</h3>
                 <div className="payment-options">
