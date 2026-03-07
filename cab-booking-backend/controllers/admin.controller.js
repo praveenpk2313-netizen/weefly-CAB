@@ -145,3 +145,25 @@ export const getAllDrivers = async (req, res) => {
         res.status(500).json({ message: "Server error" });
     }
 };
+
+// GET /api/admin/clients
+export const getAllClients = async (req, res) => {
+    try {
+        const clients = await User.find({ role: "customer" }).sort({ createdAt: -1 }).lean();
+        res.json(clients);
+    } catch (err) {
+        console.error("Get all clients error:", err);
+        res.status(500).json({ message: "Server error" });
+    }
+};
+
+// GET /api/admin/users (System Admins)
+export const getAllAdmins = async (req, res) => {
+    try {
+        const admins = await Admin.find().sort({ createdAt: -1 }).lean();
+        res.json(admins);
+    } catch (err) {
+        console.error("Get all admins error:", err);
+        res.status(500).json({ message: "Server error" });
+    }
+};

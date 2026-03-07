@@ -8,24 +8,38 @@ const AdminDashboard = () => {
   const [stats, setStats] = useState(null);
   const [trips, setTrips] = useState([]);
   const [drivers, setDrivers] = useState([]);
+  const [clients, setClients] = useState([]);
+  const [admins, setAdmins] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const [categories] = useState([
+    { id: 1, name: "Bike", seats: 1, base: 40, perKm: 6 },
+    { id: 2, name: "Auto", seats: 3, base: 40, perKm: 10 },
+    { id: 3, name: "Mini", seats: 4, base: 40, perKm: 12 },
+    { id: 4, name: "Sedan", seats: 4, base: 40, perKm: 15 },
+    { id: 5, name: "SUV", seats: 6, base: 40, perKm: 18 },
+  ]);
+
   const [fareConfig] = useState({
-    baseFare: 50, perKm: 15, perMin: 2, surge: 1.2, commission: 20
+    baseFare: 40, surge: 1.0, commission: 20
   });
 
   useEffect(() => {
     const fetchAll = async () => {
       try {
         setLoading(true);
-        const [statsRes, tripsRes, driversRes] = await Promise.all([
+        const [statsRes, tripsRes, driversRes, clientsRes, adminsRes] = await Promise.all([
           api.get("/admin/stats"),
           api.get("/admin/trips"),
           api.get("/admin/drivers"),
+          api.get("/admin/clients"),
+          api.get("/admin/users"),
         ]);
         setStats(statsRes.data);
         setTrips(tripsRes.data);
         setDrivers(driversRes.data);
+        setClients(clientsRes.data);
+        setAdmins(adminsRes.data);
       } catch (err) {
         console.error("Admin data fetch error:", err);
       } finally {
@@ -150,7 +164,7 @@ const AdminDashboard = () => {
 
                   <div className="booking-list-section">
                     <div className="section-header-row">
-                      <h3>Booking List</h3>
+                      <h3>Recent Bookings</h3>
                     </div>
                     <div className="glass-card table-container">
                       <table className="admin-table modern-table">
@@ -162,12 +176,11 @@ const AdminDashboard = () => {
                             <th>Cab</th>
                             <th>Client</th>
                             <th>Status</th>
-                            <th>Action</th>
                           </tr>
                         </thead>
                         <tbody>
                           {stats?.recentTrips?.length === 0 && (
-                            <tr><td colSpan="7" className="muted">No recent bookings</td></tr>
+                            <tr><td colSpan="6" className="muted">No recent bookings</td></tr>
                           )}
                           {stats?.recentTrips?.map((t, idx) => (
                             <tr key={t._id}>
@@ -181,11 +194,6 @@ const AdminDashboard = () => {
                                   {t.status}
                                 </span>
                               </td>
-                              <td>
-                                <button className="action-btn-view" onClick={() => alert(`Viewing ID: ${t._id}`)}>
-                                  <span className="eye-icon">👁️</span> View
-                                </button>
-                              </td>
                             </tr>
                           ))}
                         </tbody>
@@ -197,72 +205,181 @@ const AdminDashboard = () => {
             </div>
           )}
 
-          {/* DRIVERS */}
-          {activeTab === 'drivers' && (
+          {/* MANAGE CATEGORIES */}
+          {activeTab === 'categories' && (
             <div className="admin-view animate-fade-in">
-              <h2 className="view-title">Driver Management</h2>
+              <div className="view-header-row">
+                <h2 className="view-inner-title">Vehicle Management</h2>
+                <button className="add-btn-premium">+ Add New Category</button>
+              </div>
               <div className="glass-card table-container">
-                {loading ? <div className="muted">Loading...</div> : (
-                  <table className="admin-table">
+                 <table className="admin-table modern-table">
                     <thead>
                       <tr>
-                        <th>Phone</th>
-                        <th>Role</th>
-                        <th>Joined</th>
+                        <th>#</th>
+                        <th>Category Name</th>
+                        <th>Seats</th>
+                        <th>Base Fare</th>
+                        <th>Per KM Rate</th>
+                        <th>Action</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {drivers.length === 0 && (
-                        <tr><td colSpan="3" className="muted">No drivers registered yet</td></tr>
-                      )}
-                      {drivers.map(d => (
-                        <tr key={d._id}>
-                          <td>{d.phone}</td>
-                          <td><span className="badge-status verified">{d.role}</span></td>
-                          <td>{new Date(d.createdAt).toLocaleDateString('en-IN')}</td>
+                      {categories.map((cat, idx) => (
+                        <tr key={cat.id}>
+                          <td>{idx + 1}</td>
+                          <td><strong>{cat.name}</strong></td>
+                          <td>{cat.seats} Seats</td>
+                          <td>₹{cat.base}</td>
+                          <td>₹{cat.perKm}/km</td>
+                          <td>
+                            <button className="edit-btn">Edit</button>
+                            <button className="delete-btn">Delete</button>
+                          </td>
                         </tr>
                       ))}
                     </tbody>
-                  </table>
-                )}
+                 </table>
               </div>
             </div>
           )}
 
-          {/* TRIPS */}
-          {activeTab === 'trips' && (
+          {/* CAB MANAGEMENT (DRIVERS) */}
+          {activeTab === 'drivers' && (
             <div className="admin-view animate-fade-in">
-              <h2 className="view-title">All Trips</h2>
+              <h2 className="view-inner-title">Cab & Driver Management</h2>
               <div className="glass-card table-container">
-                {loading ? <div className="muted">Loading...</div> : (
-                  <table className="admin-table">
+                 <table className="admin-table modern-table">
                     <thead>
                       <tr>
-                        <th>Phone</th>
-                        <th>Pickup</th>
-                        <th>Cab</th>
-                        <th>Distance</th>
+                        <th>#</th>
+                        <th>Driver Name</th>
+                        <th>Mobile Number</th>
+                        <th>Cab Type</th>
+                        <th>Wallet</th>
                         <th>Status</th>
-                        <th>Date</th>
+                        <th>Action</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {trips.length === 0 && (
-                        <tr><td colSpan="6" className="muted">No trips yet</td></tr>
-                      )}
-                      {trips.map(t => (
-                        <tr key={t._id}>
-                          <td>{t.phone}</td>
-                          <td>{t.pickup}</td>
-                          <td>{t.cabType}</td>
-                          <td>{t.distanceKm || '-'} km</td>
-                          <td><span className={`badge-status ${t.status}`}>{t.status}</span></td>
-                          <td>{new Date(t.createdAt).toLocaleDateString('en-IN')}</td>
+                      {drivers.length === 0 && <tr><td colSpan="7" className="muted">No drivers registered</td></tr>}
+                      {drivers.map((d, idx) => (
+                        <tr key={d._id}>
+                          <td>{idx + 1}</td>
+                          <td>{d.name}</td>
+                          <td>{d.phone}</td>
+                          <td>Sedan</td>
+                          <td>₹{d.wallet || 0}</td>
+                          <td><span className={`badge-pill ${d.isOnline ? 'status-completed' : 'status-cancelled'}`}>{d.isOnline ? 'Online' : 'Offline'}</span></td>
+                          <td>
+                             <button className="action-btn-view">Details</button>
+                          </td>
                         </tr>
                       ))}
                     </tbody>
-                  </table>
-                )}
+                 </table>
+              </div>
+            </div>
+          )}
+
+          {/* VIEW BOOKINGS */}
+          {activeTab === 'trips' && (
+            <div className="admin-view animate-fade-in">
+              <h2 className="view-inner-title">All Trip Bookings</h2>
+              <div className="glass-card table-container">
+                 <table className="admin-table modern-table">
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>Date</th>
+                        <th>Client</th>
+                        <th>Pickup → Drop</th>
+                        <th>Fare</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {trips.length === 0 && <tr><td colSpan="7" className="muted">No trips recorded</td></tr>}
+                      {trips.map((t, idx) => (
+                        <tr key={t._id}>
+                          <td>{idx + 1}</td>
+                          <td>{new Date(t.createdAt).toLocaleDateString()}</td>
+                          <td>{t.phone}</td>
+                          <td>{t.pickup} → {t.drop}</td>
+                          <td>₹{t.fare || 0}</td>
+                          <td><span className={`badge-pill status-${t.status}`}>{t.status}</span></td>
+                          <td><button className="action-btn-view">View</button></td>
+                        </tr>
+                      ))}
+                    </tbody>
+                 </table>
+              </div>
+            </div>
+          )}
+
+          {/* REGISTERED CLIENTS */}
+          {activeTab === 'clients' && (
+            <div className="admin-view animate-fade-in">
+              <h2 className="view-inner-title">Customer Directory</h2>
+              <div className="glass-card table-container">
+                 <table className="admin-table modern-table">
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Joined Date</th>
+                        <th>Activity</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {clients.length === 0 && <tr><td colSpan="6" className="muted">No clients registered</td></tr>}
+                      {clients.map((c, idx) => (
+                        <tr key={c._id}>
+                          <td>{idx + 1}</td>
+                          <td>{c.name}</td>
+                          <td>{c.email}</td>
+                          <td>{c.phone}</td>
+                          <td>{new Date(c.createdAt).toLocaleDateString()}</td>
+                          <td><button className="action-btn-view">History</button></td>
+                        </tr>
+                      ))}
+                    </tbody>
+                 </table>
+              </div>
+            </div>
+          )}
+
+          {/* SYSTEM USERS (ADMINS) */}
+          {activeTab === 'users' && (
+            <div className="admin-view animate-fade-in">
+              <div className="view-header-row">
+                <h2 className="view-inner-title">Administrator List</h2>
+                <button className="add-btn-premium">+ New Admin</button>
+              </div>
+              <div className="glass-card table-container">
+                 <table className="admin-table modern-table">
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>Username</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {admins.map((a, idx) => (
+                        <tr key={a._id}>
+                          <td>{idx + 1}</td>
+                          <td>{a.username}</td>
+                          <td>{a.role || 'Super Admin'}</td>
+                          <td><span className="badge-pill status-completed">Active</span></td>
+                        </tr>
+                      ))}
+                    </tbody>
+                 </table>
               </div>
             </div>
           )}
@@ -270,22 +387,12 @@ const AdminDashboard = () => {
           {/* SETTINGS */}
           {activeTab === 'fare' && (
             <div className="admin-view animate-fade-in">
-              <h2 className="view-title">Fare & Revenue Configuration</h2>
+              <h2 className="view-inner-title">System Configuration</h2>
               <div className="glass-card config-form">
                 <div className="input-row-admin">
                   <div className="input-group">
-                    <label>Base Fare (₹)</label>
+                    <label>Default Base Fare (₹)</label>
                     <input type="number" className="premium-input-admin" defaultValue={fareConfig.baseFare} />
-                  </div>
-                  <div className="input-group">
-                    <label>Per KM (₹)</label>
-                    <input type="number" className="premium-input-admin" defaultValue={fareConfig.perKm} />
-                  </div>
-                </div>
-                <div className="input-row-admin">
-                  <div className="input-group">
-                    <label>Per Minute (₹)</label>
-                    <input type="number" className="premium-input-admin" defaultValue={fareConfig.perMin} />
                   </div>
                   <div className="input-group">
                     <label>Surge Multiplier (x)</label>
@@ -295,6 +402,9 @@ const AdminDashboard = () => {
                 <div className="input-group">
                   <label>Platform Commission (%)</label>
                   <input type="number" className="premium-input-admin" defaultValue={fareConfig.commission} />
+                </div>
+                <div className="settings-notice">
+                   Note: Specific rates per vehicle category can be managed in the "Manage Category" section.
                 </div>
                 <button className="premium-cta-btn" onClick={() => alert("Configurations updated!")}>Save Changes</button>
               </div>

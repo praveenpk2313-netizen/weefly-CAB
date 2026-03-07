@@ -221,6 +221,93 @@
     background: #138496;
 }
 
+.view-inner-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #444;
+    margin-bottom: 25px;
+}
+
+.view-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.add-btn-premium {
+    background: #6f42c1;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.add-btn-premium:hover {
+    background: #59359a;
+    box-shadow: 0 4px 12px rgba(111, 66, 193, 0.3);
+}
+
+/* CRUD Buttons */
+.edit-btn, .delete-btn {
+    padding: 6px 14px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    margin-right: 8px;
+    transition: all 0.2s;
+}
+
+.edit-btn {
+    background: #e7f1ff;
+    color: #0d6efd;
+}
+
+.delete-btn {
+    background: #f8d7da;
+    color: #dc3545;
+}
+
+.edit-btn:hover { background: #0d6efd; color: #fff; }
+.delete-btn:hover { background: #dc3545; color: #fff; }
+
+.settings-notice {
+    font-size: 13px;
+    color: #888;
+    background: #f8f9fa;
+    padding: 12px;
+    border-left: 4px solid #17a2b8;
+    margin-top: 10px;
+}
+
+.premium-cta-btn {
+    margin-top: 20px;
+    background: #28a745;
+    color: #fff;
+    border: none;
+    padding: 14px;
+    border-radius: 4px;
+    font-weight: 800;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.premium-cta-btn:hover {
+    background: #218838;
+}
+
+.middle-loader {
+    padding: 100px;
+    text-align: center;
+    font-size: 18px;
+    font-weight: 600;
+}
+
 @media (max-width: 1200px) {
     .stats-grid-admin8 {
         grid-template-columns: repeat(2, 1fr);
