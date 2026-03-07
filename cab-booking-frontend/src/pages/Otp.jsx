@@ -35,7 +35,9 @@ export default function Otp() {
       if (otpString.length !== 4) return setMessage({ type: "error", text: "Please enter 4-digit OTP" });
 
       setLoading(true);
-      const phone = localStorage.getItem("phone");
+      const userStr = localStorage.getItem("user");
+      const userData = userStr ? JSON.parse(userStr) : null;
+      const phone = userData?.phone || localStorage.getItem("phone");
       const role = localStorage.getItem("role") || "customer";
 
       const res = await api.post("auth/verify-otp", {
@@ -73,7 +75,9 @@ export default function Otp() {
 
   const resendOtp = async () => {
     try {
-      const phone = localStorage.getItem("phone");
+      const userStr = localStorage.getItem("user");
+      const userData = userStr ? JSON.parse(userStr) : null;
+      const phone = userData?.phone || localStorage.getItem("phone");
       const res = await api.post("/auth/send-otp", { phone });
 
       if (res.data.otp) {

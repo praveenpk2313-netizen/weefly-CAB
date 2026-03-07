@@ -180,9 +180,13 @@ export default function BookRide() {
     try {
       setLoading(true);
       const fare = baseFare + distanceKm * rates[selectedCab];
+      
+      const userStr = localStorage.getItem("user");
+      const userData = userStr ? JSON.parse(userStr) : null;
+      const phone = userData?.phone || "";
 
       const res = await api.post("/booking/create", {
-        phone: localStorage.getItem("phone"),
+        phone,
         pickup,
         drop,
         cabType: selectedCab,

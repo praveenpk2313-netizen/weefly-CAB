@@ -16,7 +16,9 @@ const TripHistory = () => {
     const [trips, setTrips] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
-    const phone = localStorage.getItem("phone");
+    const userStr = localStorage.getItem("user");
+    const userData = userStr ? JSON.parse(userStr) : null;
+    const phone = userData?.phone || "";
 
     useEffect(() => {
         const fetchHistory = async () => {
