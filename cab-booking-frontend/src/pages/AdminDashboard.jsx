@@ -1,16 +1,20 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { api } from "../api";
 import Navbar from "../components/Navbar";
 import "./AdminDashboard.css";
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
+  const [sidebarVisible, setSidebarVisible] = useState(false);
   const [stats, setStats] = useState(null);
   const [trips, setTrips] = useState([]);
   const [drivers, setDrivers] = useState([]);
   const [clients, setClients] = useState([]);
   const [admins, setAdmins] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedItem, setSelectedItem] = useState(null); // For Modal
+  const navigate = useNavigate();
 
   const [categories] = useState([
     { id: 1, name: "Bike", seats: 1, base: 40, perKm: 6 },
@@ -57,32 +61,41 @@ const AdminDashboard = () => {
     return map[status] || '';
   };
 
+  const toggleSidebar = () => setSidebarVisible(!sidebarVisible);
+
   return (
     <div className="admin-page-wrapper">
       <Navbar />
-      <Navbar />
-      <div className="admin-layout">
+      <div className={`admin-layout ${sidebarVisible ? 'sidebar-open' : ''}`}>
+        {/* Mobile Toggle */}
+        <button className="mobile-sidebar-toggle" onClick={toggleSidebar}>
+          {sidebarVisible ? '✕' : '☰'}
+        </button>
+
         {/* Sidebar */}
-        <aside className="admin-sidebar glass-card">
-          <div className="sidebar-brand">
-            <span className="brand-icon">🚕</span>
-            <span>CBS - PHP</span>
+        <aside className={`admin-sidebar glass-card ${sidebarVisible ? 'visible' : ''}`}>
+          <div className="sidebar-branding">
+            <span className="sidebar-logo-icon">🚕</span>
+            <span className="sidebar-logo-text">Weefly Admin</span>
           </div>
           <nav>
-            <button className={activeTab === 'overview' ? 'active' : ''} onClick={() => setActiveTab('overview')}>📊 Dashboard</button>
-            <button className={activeTab === 'categories' ? 'active' : ''} onClick={() => setActiveTab('categories')}>📁 Manage Category</button>
-            <button className={activeTab === 'drivers' ? 'active' : ''} onClick={() => setActiveTab('drivers')}>🚖 Cab Management</button>
-            <button className={activeTab === 'trips' ? 'active' : ''} onClick={() => setActiveTab('trips')}>📄 View Bookings</button>
-            <button className={activeTab === 'clients' ? 'active' : ''} onClick={() => setActiveTab('clients')}>👥 Registered Clients</button>
-            <button className={activeTab === 'users' ? 'active' : ''} onClick={() => setActiveTab('users')}>👨‍💻 System Users</button>
-            <button className={activeTab === 'fare' ? 'active' : ''} onClick={() => setActiveTab('fare')}>⚙️ Settings</button>
+            <button className={activeTab === 'overview' ? 'active' : ''} onClick={() => { setActiveTab('overview'); setSidebarVisible(false); }}>📊 Dashboard</button>
+            <button className={activeTab === 'categories' ? 'active' : ''} onClick={() => { setActiveTab('categories'); setSidebarVisible(false); }}>📁 Manage Category</button>
+            <button className={activeTab === 'drivers' ? 'active' : ''} onClick={() => { setActiveTab('drivers'); setSidebarVisible(false); }}>🚖 Cab Management</button>
+            <button className={activeTab === 'trips' ? 'active' : ''} onClick={() => { setActiveTab('trips'); setSidebarVisible(false); }}>📄 View Bookings</button>
+            <button className={activeTab === 'clients' ? 'active' : ''} onClick={() => { setActiveTab('clients'); setSidebarVisible(false); }}>👥 Registered Clients</button>
+            <button className={activeTab === 'users' ? 'active' : ''} onClick={() => { setActiveTab('users'); setSidebarVisible(false); }}>👨‍💻 System Users</button>
+            <button className={activeTab === 'fare' ? 'active' : ''} onClick={() => { setActiveTab('fare'); setSidebarVisible(false); }}>⚙️ Settings</button>
           </nav>
         </aside>
+
+        {/* Backdrop for mobile */}
+        {sidebarVisible && <div className="sidebar-backdrop" onClick={() => setSidebarVisible(false)}></div>}
 
         {/* Main Content */}
         <main className="admin-main-content">
           <div className="content-header-admin">
-             <h1 className="main-title-admin">Cab Booking System</h1>
+             <h1 className="main-title-admin">Weefly Cab Booking</h1>
           </div>
 
           {/* OVERVIEW / DASHBOARD */}
@@ -152,14 +165,13 @@ const AdminDashboard = () => {
                         <p>{stats?.completedRides || 0}</p>
                       </div>
                     </div>
-                  </div>
-
-                  <div className="stat-card-mini card-pink system-users-card">
-                      <div className="card-mini-icon">👨‍💻</div>
-                      <div className="card-mini-info">
-                        <h3>System Users</h3>
-                        <p>{stats?.systemUsers || 0}</p>
-                      </div>
+                    <div className="stat-card-mini card-pink">
+                        <div className="card-mini-icon">👨‍💻</div>
+                        <div className="card-mini-info">
+                          <h3>System Users</h3>
+                          <p>{stats?.systemUsers || 0}</p>
+                        </div>
+                    </div>
                   </div>
 
                   <div className="booking-list-section">
@@ -190,9 +202,7 @@ const AdminDashboard = () => {
                               <td>{t.cabType}</td>
                               <td>{t.phone}</td>
                               <td>
-                                <span className={`badge-pill status-${t.status}`}>
-                                  {t.status}
-                                </span>
+                                <button className="action-btn-view" onClick={() => setSelectedItem({ type: 'booking', data: t })}>View</button>
                               </td>
                             </tr>
                           ))}
@@ -210,7 +220,7 @@ const AdminDashboard = () => {
             <div className="admin-view animate-fade-in">
               <div className="view-header-row">
                 <h2 className="view-inner-title">Vehicle Management</h2>
-                <button className="add-btn-premium">+ Add New Category</button>
+                 <button className="add-btn-premium" onClick={() => alert("Vehicle category management is currently in read-only mode.")}>+ Add New Category</button>
               </div>
               <div className="glass-card table-container">
                  <table className="admin-table modern-table">
@@ -232,10 +242,10 @@ const AdminDashboard = () => {
                           <td>{cat.seats} Seats</td>
                           <td>₹{cat.base}</td>
                           <td>₹{cat.perKm}/km</td>
-                          <td>
-                            <button className="edit-btn">Edit</button>
-                            <button className="delete-btn">Delete</button>
-                          </td>
+                           <td>
+                             <button className="edit-btn" onClick={() => alert("Edit feature coming soon!")}>Edit</button>
+                             <button className="delete-btn" onClick={() => alert("Delete feature coming soon!")}>Delete</button>
+                           </td>
                         </tr>
                       ))}
                     </tbody>
@@ -272,7 +282,7 @@ const AdminDashboard = () => {
                           <td>₹{d.wallet || 0}</td>
                           <td><span className={`badge-pill ${d.isOnline ? 'status-completed' : 'status-cancelled'}`}>{d.isOnline ? 'Online' : 'Offline'}</span></td>
                           <td>
-                             <button className="action-btn-view">Details</button>
+                             <button className="action-btn-view" onClick={() => setSelectedItem({ type: 'driver', data: d })}>Details</button>
                           </td>
                         </tr>
                       ))}
@@ -309,7 +319,7 @@ const AdminDashboard = () => {
                           <td>{t.pickup} → {t.drop}</td>
                           <td>₹{t.fare || 0}</td>
                           <td><span className={`badge-pill status-${t.status}`}>{t.status}</span></td>
-                          <td><button className="action-btn-view">View</button></td>
+                          <td><button className="action-btn-view" onClick={() => setSelectedItem({ type: 'booking', data: t })}>View</button></td>
                         </tr>
                       ))}
                     </tbody>
@@ -342,8 +352,8 @@ const AdminDashboard = () => {
                           <td>{c.name}</td>
                           <td>{c.email}</td>
                           <td>{c.phone}</td>
-                          <td>{new Date(c.createdAt).toLocaleDateString()}</td>
-                          <td><button className="action-btn-view">History</button></td>
+                           <td>{new Date(c.createdAt).toLocaleDateString()}</td>
+                           <td><button className="action-btn-view" onClick={() => setSelectedItem({ type: 'client', data: c })}>History</button></td>
                         </tr>
                       ))}
                     </tbody>
@@ -357,7 +367,7 @@ const AdminDashboard = () => {
             <div className="admin-view animate-fade-in">
               <div className="view-header-row">
                 <h2 className="view-inner-title">Administrator List</h2>
-                <button className="add-btn-premium">+ New Admin</button>
+                <button className="add-btn-premium" onClick={() => navigate("/admin/register")}>+ New Admin</button>
               </div>
               <div className="glass-card table-container">
                  <table className="admin-table modern-table">
@@ -408,11 +418,51 @@ const AdminDashboard = () => {
                 </div>
                 <button className="premium-cta-btn" onClick={() => alert("Configurations updated!")}>Save Changes</button>
               </div>
-            </div>
+             </div>
           )}
-
+ 
         </main>
       </div>
+ 
+      {/* Modal for Details */}
+      {selectedItem && (
+        <div className="admin-modal-overlay" onClick={() => setSelectedItem(null)}>
+          <div className="admin-modal-content glass-card animate-fade-in" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>{selectedItem.type.toUpperCase()} DETAILS</h3>
+              <button className="close-modal" onClick={() => setSelectedItem(null)}>✕</button>
+            </div>
+            <div className="modal-body">
+              {selectedItem.type === 'booking' && (
+                <div className="detail-list">
+                  <p><strong>Ref Code:</strong> {selectedItem.data._id.toUpperCase()}</p>
+                  <p><strong>Pickup:</strong> {selectedItem.data.pickup}</p>
+                  <p><strong>Drop:</strong> {selectedItem.data.drop}</p>
+                  <p><strong>Fare:</strong> ₹{selectedItem.data.fare}</p>
+                  <p><strong>Status:</strong> <span className={`badge-pill status-${selectedItem.data.status}`}>{selectedItem.data.status}</span></p>
+                  <p><strong>Date:</strong> {new Date(selectedItem.data.createdAt).toLocaleString()}</p>
+                </div>
+              )}
+              {selectedItem.type === 'driver' && (
+                <div className="detail-list">
+                  <p><strong>Name:</strong> {selectedItem.data.name}</p>
+                  <p><strong>Phone:</strong> {selectedItem.data.phone}</p>
+                  <p><strong>Wallet:</strong> ₹{selectedItem.data.wallet}</p>
+                  <p><strong>Current Status:</strong> {selectedItem.data.isOnline ? 'Online' : 'Offline'}</p>
+                </div>
+              )}
+              {selectedItem.type === 'client' && (
+                <div className="detail-list">
+                  <p><strong>Name:</strong> {selectedItem.data.name}</p>
+                  <p><strong>Email:</strong> {selectedItem.data.email}</p>
+                  <p><strong>Phone:</strong> {selectedItem.data.phone}</p>
+                  <p><strong>Joined:</strong> {new Date(selectedItem.data.createdAt).toLocaleDateString()}</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

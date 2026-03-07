@@ -60,7 +60,7 @@ export default function Navbar() {
                 <div className="nav-container">
                     <Link to="/" className="nav-logo">
                         <span className="logo-icon">🚕</span>
-                        <span className="logo-text">WHEEFLY CAB</span>
+                        <span className="logo-text">Weefly Cab Booking</span>
                     </Link>
 
                     <div className={`nav-links ${mobileMenuOpen ? "active" : ""}`}>
