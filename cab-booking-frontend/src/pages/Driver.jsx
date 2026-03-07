@@ -14,47 +14,41 @@ export default function Driver() {
   const [isOnline, setIsOnline] = useState(true);
 
   // Initializing with data specific to session or empty to avoid "old data" feel
-  const [wallet, setWallet] = useState(1250);
   const [earnings, setEarnings] = useState({ daily: 450, weekly: 3200, monthly: 12500 });
   const [rating, setRating] = useState(4.8);
   const [showRequest, setShowRequest] = useState(false);
   const [currentRequest, setCurrentRequest] = useState(null);
   const [driver, setDriver] = useState(null);
+  const [wallet, setWallet] = useState(0);
   const nav = useNavigate();
 
   useEffect(() => {
     const userStr = localStorage.getItem("user");
     const role = localStorage.getItem("role");
 
-    console.log("Driver Dashboard Check - userStr:", userStr, "role:", role);
-
-    if (role !== "driver") {
-      console.log("No valid driver session found (role mismatch), redirecting to login.");
+    if (role !== "driver" || !userStr) {
       nav("/");
       return;
     }
 
-    if (userStr) {
-      const userData = JSON.parse(userStr);
-      console.log("Parsed user data:", userData);
-      if (userData.role !== "driver") {
-        console.log("Role mismatch. Expected driver, got:", userData.role);
-        nav("/");
-        return;
-      }
-      setDriver(userData);
-      // Ensure role in localStorage is consistent with user object
-      if (role !== userData.role) {
-        console.log("Updating role in localStorage to match user data.");
-        localStorage.setItem("role", userData.role);
-      }
-    } else {
-      // Fallback if user object is missing but role is correct (legacy or refresh before backend returns user)
-      setDriver({ name: "Driver", _id: "DRIVER-001", role: "driver" });
-    }
-  }, [nav]);
+    const userData = JSON.parse(userStr);
+    setDriver(userData);
+    setWallet(userData.wallet || 0);
 
-  const DRIVER_ID = driver?._id || "DRIVER-001";
+    // Fetch latest user data to get accurate wallet balance
+    const fetchUser = async () => {
+      try {
+        const res = await api.get(`/auth/user/${userData.id || userData._id}`);
+        if (res.data.success) {
+          setWallet(res.data.user.wallet || 0);
+          localStorage.setItem("user", JSON.stringify(res.data.user));
+        }
+      } catch (e) {
+        console.error("Fetch user error:", e);
+      }
+    };
+    fetchUser();
+  }, [nav]);
 
   const loadAll = async () => {
     if (!isOnline) return;

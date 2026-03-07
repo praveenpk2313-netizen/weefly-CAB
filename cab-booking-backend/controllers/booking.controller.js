@@ -1,4 +1,5 @@
 import Booking from "../models/Booking.js";
+import User from "../models/User.js";
 
 // helper: 4-digit OTP
 const genOtp = () => Math.floor(1000 + Math.random() * 9000).toString();
@@ -200,6 +201,33 @@ export const getBookingsByPhone = async (req, res) => {
     res.json(bookings);
   } catch (err) {
     console.log("Booking history error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// ✅ Complete ride + Pay (updates driver wallet)
+export const completeRideAndPay = async (req, res) => {
+  try {
+    const { bookingId, driverId } = req.body;
+
+    const booking = await Booking.findById(bookingId);
+    if (!booking) return res.status(404).json({ message: "Booking not found" });
+
+    if (booking.status !== "started") {
+      return res.status(400).json({ message: "Trip must be in 'started' state to complete" });
+    }
+
+    // Update booking status
+    booking.status = "completed";
+    await booking.save();
+
+    // Update driver wallet
+    const fareAmount = parseFloat(booking.fare) || 0;
+    await User.findByIdAndUpdate(driverId, { $inc: { wallet: fareAmount } });
+
+    res.json({ success: true, message: "Ride completed and payment added to wallet", booking });
+  } catch (err) {
+    console.error("Complete ride error:", err);
     res.status(500).json({ message: "Server error" });
   }
 };

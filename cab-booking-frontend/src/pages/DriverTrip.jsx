@@ -16,6 +16,8 @@ export default function DriverTrip() {
   const [showOtp, setShowOtp] = useState(false);
   const [otp, setOtp] = useState("");
   const [otpErr, setOtpErr] = useState("");
+  const [showPayment, setShowPayment] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState(""); // "cash" or "qr"
 
   const fetchTrip = async () => {
     try {
@@ -95,14 +97,28 @@ export default function DriverTrip() {
     }
   };
 
-  const onEndTrip = async () => {
+  const onCompleteTrip = () => {
+    setShowPayment(true);
+  };
+
+  const onConfirmPayment = async () => {
     try {
+      if (!paymentMethod) return alert("Please select a payment method");
+      
       setUpdating(true);
-      await updateStatus("completed");
-      await fetchTrip();
+      const userStr = localStorage.getItem("user");
+      const userData = userStr ? JSON.parse(userStr) : null;
+      const driverId = userData?.id || userData?._id || "DRIVER-001";
+
+      await api.post("/booking/complete-and-pay", {
+        bookingId: id,
+        driverId
+      });
+      
+      alert("Trip completed and fare added to wallet!");
       navigate("/driver");
     } catch (err) {
-      alert(err?.response?.data?.message || "End trip failed");
+      alert(err?.response?.data?.message || "Payment confirmation failed");
     } finally {
       setUpdating(false);
     }
@@ -225,10 +241,45 @@ export default function DriverTrip() {
               </div>
             )}
 
-            {showEndTripBtn && (
-              <button className="premium-cta-btn success-btn" onClick={onEndTrip} disabled={updating}>
-                Finish Trip
+            {showEndTripBtn && !showPayment && (
+              <button className="premium-cta-btn success-btn" onClick={onCompleteTrip} disabled={updating}>
+                Complete Trip
               </button>
+            )}
+
+            {showPayment && !status === "completed" && (
+              <div className="payment-selection-section">
+                <h3 className="section-hint">Select Payment Method</h3>
+                <div className="payment-options">
+                  <button 
+                    className={`payment-opt-btn ${paymentMethod === 'cash' ? 'active' : ''}`}
+                    onClick={() => setPaymentMethod('cash')}
+                  >
+                    💵 Cash
+                  </button>
+                  <button 
+                    className={`payment-opt-btn ${paymentMethod === 'qr' ? 'active' : ''}`}
+                    onClick={() => setPaymentMethod('qr')}
+                  >
+                    🤳 QR Code
+                  </button>
+                </div>
+
+                {paymentMethod === 'qr' && (
+                  <div className="qr-code-display">
+                    <img src="/sample_qr_code.png" alt="Payment QR Code" className="qr-image" />
+                    <p className="qr-hint">Customer can scan this to pay</p>
+                  </div>
+                )}
+
+                <button 
+                  className="premium-cta-btn confirm-payment-btn" 
+                  onClick={onConfirmPayment} 
+                  disabled={updating || !paymentMethod}
+                >
+                  Confirm Payment & Finish
+                </button>
+              </div>
             )}
 
             {status === "completed" && (

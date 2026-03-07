@@ -8,6 +8,7 @@ import {
   updateRideStatus,
   getDriverActiveTrip,
   getBookingsByPhone,
+  completeRideAndPay,
 } from "../controllers/booking.controller.js";
 
 const router = express.Router();
@@ -22,6 +23,7 @@ router.post("/accept", acceptRide);
 router.post("/update-status", updateRideStatus);
 router.post("/verify-start-otp", verifyStartOtp);
 router.get("/driver-active/:driverId", getDriverActiveTrip);
+router.post("/complete-and-pay", completeRideAndPay);
 
 // trip detail page
 router.get("/:id", getSingleBooking);
