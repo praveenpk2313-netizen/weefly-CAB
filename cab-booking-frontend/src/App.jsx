@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
+import Signup from "./pages/Signup";
 import Otp from "./pages/Otp";
 import BookRide from "./pages/BookRide";
 import Driver from "./pages/Driver";
@@ -16,6 +17,7 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
         <Route path="/otp" element={<Otp />} />
         <Route path="/book" element={<BookRide />} />
         <Route path="/history" element={<TripHistory />} />

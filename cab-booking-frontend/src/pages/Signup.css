@@ -1,0 +1,15 @@
+/* Signup page reuses Login page styles */
+@import "./Login.css";
+
+/* Any signup-specific styles can go here */
+.login-container {
+    padding-top: 40px; /* Adjust if header is too tall for content */
+}
+
+.glass-card {
+    max-width: 520px; /* Slightly wider for more fields */
+}
+
+.login-form {
+    gap: 16px; /* Slightly tighter gap for more fields */
+}

@@ -5,8 +5,7 @@ import Navbar from "../components/Navbar";
 import "./Login.css";
 
 export default function Login() {
-  const [phone, setPhone] = useState("");
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -18,41 +17,35 @@ export default function Login() {
     localStorage.removeItem("tempOtp");
   }, []);
 
-  const sendOtp = async () => {
+  const handleLogin = async () => {
     try {
-      if (phone.length !== 10) return alert("Enter valid mobile number");
+      if (!email || !password) return alert("Please enter both email and password");
       setLoading(true);
-      const res = await api.post("/auth/send-otp", { phone, role: activeRole });
-      localStorage.setItem("phone", phone);
-      localStorage.setItem("role", activeRole);
-      if (res.data.otp) {
-        localStorage.setItem("tempOtp", res.data.otp);
-      }
-      navigate("/otp");
-    } catch (err) {
-      alert(err?.response?.data?.message || "Send OTP failed");
-    } finally {
-      setLoading(false);
-    }
-  };
 
-  const handleAdminLogin = async () => {
-    try {
-      if (!username || !password) return alert("Please enter both username and password");
-      setLoading(true);
-      const res = await api.post("/admin/login", { username, password });
+      const endpoint = activeRole === 'admin' ? "/admin/login" : "/auth/login";
+      const payload = activeRole === 'admin' ? { username: email, password } : { email, password };
+      
+      const res = await api.post(endpoint, payload);
 
       if (res.data.success) {
-        localStorage.setItem("adminToken", res.data.token);
-        localStorage.setItem("role", "admin");
-        navigate("/admin");
+        if (activeRole === 'admin') {
+          localStorage.setItem("adminToken", res.data.token);
+          localStorage.setItem("role", "admin");
+          navigate("/admin");
+        } else {
+          localStorage.setItem("token", res.data.token);
+          localStorage.setItem("role", res.data.user.role);
+          localStorage.setItem("user", JSON.stringify(res.data.user));
+          navigate("/book");
+        }
       }
     } catch (err) {
-      alert(err?.response?.data?.message || "Invalid admin credentials");
+      alert(err?.response?.data?.message || "Login failed");
     } finally {
       setLoading(false);
     }
   };
+
 
   return (
     <div className="login-page-wrapper">
@@ -90,8 +83,8 @@ export default function Login() {
                       className="premium-input"
                       placeholder="Admin username"
                       type="text"
-                      value={username}
-                      onChange={(e) => setUsername(e.target.value)}
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
                     />
                   </div>
                 </div>
@@ -123,28 +116,52 @@ export default function Login() {
                 </div>
               </>
             ) : (
-              <div className="input-group">
-                <label htmlFor="phone">Phone Number</label>
-                <div className="input-with-icon">
-                  <span className="input-icon">📱</span>
-                  <input
-                    id="phone"
-                    className="premium-input"
-                    placeholder="Enter 10-digit number"
-                    type="tel"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                  />
+              <>
+                <div className="input-group">
+                  <label htmlFor="email">Email ID</label>
+                  <div className="input-with-icon">
+                    <span className="input-icon">📧</span>
+                    <input
+                      id="email"
+                      className="premium-input"
+                      placeholder="Enter your email"
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                    />
+                  </div>
                 </div>
-              </div>
+
+                <div className="input-group">
+                  <label htmlFor="password">Password</label>
+                  <div className="input-with-icon">
+                    <span className="input-icon">🔒</span>
+                    <input
+                      id="password"
+                      className="premium-input"
+                      placeholder="Enter your password"
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                    />
+                    <button
+                      type="button"
+                      className="password-toggle"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? "👁️" : "👁️‍🗨️"}
+                    </button>
+                  </div>
+                </div>
+              </>
             )}
 
             <button
               className={`premium-cta-btn ${loading ? 'loading' : ''}`}
-              onClick={activeRole === 'admin' ? handleAdminLogin : sendOtp}
+              onClick={handleLogin}
               disabled={loading}
             >
-              {loading ? 'Processing...' : (activeRole === 'admin' ? 'Login' : 'Send OTP')}
+              {loading ? 'Processing...' : 'Login'}
               {!loading && <span className="btn-arrow">→</span>}
             </button>
           </div>
@@ -153,7 +170,7 @@ export default function Login() {
             {activeRole === 'admin' ? (
               <p>New administrator? <span className="link-text" onClick={() => navigate("/admin/register")}>Register account</span></p>
             ) : (
-              <p>Don't have an account? <span className="link-text" onClick={() => alert("Signup flow coming soon!")}>Join us now</span></p>
+              <p>Don't have an account? <span className="link-text" onClick={() => navigate("/signup")}>Sign Up</span></p>
             )}
           </div>
         </div>
