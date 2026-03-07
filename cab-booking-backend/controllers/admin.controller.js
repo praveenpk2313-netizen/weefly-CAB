@@ -84,13 +84,22 @@ export const adminLogin = async (req, res) => {
 export const getAdminStats = async (req, res) => {
     try {
         const totalRides = await Booking.countDocuments();
+        const pendingBookings = await Booking.countDocuments({ status: "pending" });
         const completedRides = await Booking.countDocuments({ status: "completed" });
+        const cancelledBookings = await Booking.countDocuments({ status: "cancelled" });
+        const ongoingTrips = await Booking.countDocuments({ status: { $in: ["accepted", "arrived", "started"] } });
+
         const revenueAgg = await Booking.aggregate([
             { $match: { status: "completed" } },
             { $group: { _id: null, total: { $sum: "$fare" } } }
         ]);
         const totalRevenue = revenueAgg[0]?.total || 0;
-        const activeDrivers = await User.countDocuments({ role: "driver" });
+
+        const totalClients = await User.countDocuments({ role: "customer" });
+        const totalDrivers = await User.countDocuments({ role: "driver" });
+        const availableCabs = await User.countDocuments({ role: "driver", isOnline: true });
+        const systemUsers = await Admin.countDocuments();
+
         const recentTrips = await Booking.find()
             .sort({ createdAt: -1 })
             .limit(10)
@@ -98,9 +107,15 @@ export const getAdminStats = async (req, res) => {
 
         res.json({
             totalRides,
+            pendingBookings,
             completedRides,
+            cancelledBookings,
+            ongoingTrips,
             totalRevenue,
-            activeDrivers,
+            totalClients,
+            totalDrivers,
+            availableCabs,
+            systemUsers,
             recentTrips,
         });
     } catch (err) {

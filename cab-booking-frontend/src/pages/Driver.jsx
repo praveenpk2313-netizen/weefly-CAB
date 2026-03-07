@@ -34,6 +34,7 @@ export default function Driver() {
     const userData = JSON.parse(userStr);
     setDriver(userData);
     setWallet(userData.wallet || 0);
+    setIsOnline(userData.isOnline || false);
 
     // Fetch latest user data to get accurate wallet balance
     const fetchUser = async () => {
@@ -41,6 +42,7 @@ export default function Driver() {
         const res = await api.get(`/auth/user/${userData.id || userData._id}`);
         if (res.data.success) {
           setWallet(res.data.user.wallet || 0);
+          setIsOnline(res.data.user.isOnline || false);
           localStorage.setItem("user", JSON.stringify(res.data.user));
         }
       } catch (e) {
@@ -85,10 +87,20 @@ export default function Driver() {
     return () => clearInterval(t);
   }, [isOnline]);
 
-  const toggleStatus = () => {
-    setIsOnline(!isOnline);
-    if (isOnline) {
+  const toggleStatus = async () => {
+    const newStatus = !isOnline;
+    setIsOnline(newStatus);
+    if (!newStatus) {
       setOrders([]);
+    }
+    
+    try {
+      await api.post("/auth/update-online-status", {
+        userId: driver?.id || driver?._id,
+        isOnline: newStatus
+      });
+    } catch (e) {
+      console.error("Toggle status error:", e);
     }
   };
 

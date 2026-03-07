@@ -46,59 +46,150 @@ const AdminDashboard = () => {
   return (
     <div className="admin-page-wrapper">
       <Navbar />
+      <Navbar />
       <div className="admin-layout">
         {/* Sidebar */}
         <aside className="admin-sidebar glass-card">
+          <div className="sidebar-brand">
+            <span className="brand-icon">🚕</span>
+            <span>CBS - PHP</span>
+          </div>
           <nav>
-            <button className={activeTab === 'overview' ? 'active' : ''} onClick={() => setActiveTab('overview')}>📊 Overview</button>
-            <button className={activeTab === 'drivers' ? 'active' : ''} onClick={() => setActiveTab('drivers')}>👨‍✈️ Drivers</button>
-            <button className={activeTab === 'trips' ? 'active' : ''} onClick={() => setActiveTab('trips')}>🚗 Trips</button>
+            <button className={activeTab === 'overview' ? 'active' : ''} onClick={() => setActiveTab('overview')}>📊 Dashboard</button>
+            <button className={activeTab === 'categories' ? 'active' : ''} onClick={() => setActiveTab('categories')}>📁 Manage Category</button>
+            <button className={activeTab === 'drivers' ? 'active' : ''} onClick={() => setActiveTab('drivers')}>🚖 Cab Management</button>
+            <button className={activeTab === 'trips' ? 'active' : ''} onClick={() => setActiveTab('trips')}>📄 View Bookings</button>
+            <button className={activeTab === 'clients' ? 'active' : ''} onClick={() => setActiveTab('clients')}>👥 Registered Clients</button>
+            <button className={activeTab === 'users' ? 'active' : ''} onClick={() => setActiveTab('users')}>👨‍💻 System Users</button>
             <button className={activeTab === 'fare' ? 'active' : ''} onClick={() => setActiveTab('fare')}>⚙️ Settings</button>
           </nav>
         </aside>
 
         {/* Main Content */}
         <main className="admin-main-content">
+          <div className="content-header-admin">
+             <h1 className="main-title-admin">Cab Booking System</h1>
+          </div>
 
-          {/* OVERVIEW */}
+          {/* OVERVIEW / DASHBOARD */}
           {activeTab === 'overview' && (
             <div className="admin-view animate-fade-in">
-              <h2 className="view-title">System Overview</h2>
               {loading ? (
-                <div className="muted">Loading stats...</div>
+                <div className="muted middle-loader">Loading system metrics...</div>
               ) : (
                 <>
-                  <div className="stats-grid-admin">
-                    <div className="stat-box glass-card glow-blue">
-                      <label>Total Revenue</label>
-                      <p>{formatCurrency(stats?.totalRevenue)}</p>
+                  <div className="stats-grid-admin8">
+                    {/* Row 1 */}
+                    <div className="stat-card-mini card-purple">
+                      <div className="card-mini-icon">📁</div>
+                      <div className="card-mini-info">
+                        <h3>Categories</h3>
+                        <p>5</p>
+                      </div>
                     </div>
-                    <div className="stat-box glass-card">
-                      <label>Total Rides</label>
-                      <p>{stats?.totalRides ?? 0}</p>
+                    <div className="stat-card-mini card-yellow">
+                      <div className="card-mini-icon">🚕</div>
+                      <div className="card-mini-info">
+                        <h3>Available Cabs</h3>
+                        <p>{stats?.availableCabs || 0}</p>
+                      </div>
                     </div>
-                    <div className="stat-box glass-card">
-                      <label>Completed Rides</label>
-                      <p>{stats?.completedRides ?? 0}</p>
+                    <div className="stat-card-mini card-blue">
+                      <div className="card-mini-icon">👥</div>
+                      <div className="card-mini-info">
+                        <h3>Registered Clients</h3>
+                        <p>{stats?.totalClients || 0}</p>
+                      </div>
                     </div>
-                    <div className="stat-box glass-card glow-yellow">
-                      <label>Registered Drivers</label>
-                      <p>{stats?.activeDrivers ?? 0}</p>
+                    <div className="stat-card-mini card-cyan">
+                      <div className="card-mini-icon">🔖</div>
+                      <div className="card-mini-info">
+                        <h3>Bookings Made</h3>
+                        <p>{stats?.totalRides || 0}</p>
+                      </div>
+                    </div>
+
+                    {/* Row 2 */}
+                    <div className="stat-card-mini card-grey">
+                      <div className="card-mini-icon">⌛</div>
+                      <div className="card-mini-info">
+                        <h3>Pending Bookings</h3>
+                        <p>{stats?.pendingBookings || 0}</p>
+                      </div>
+                    </div>
+                    <div className="stat-card-mini card-red">
+                      <div className="card-mini-icon">❌</div>
+                      <div className="card-mini-info">
+                        <h3>Cancelled Bookings</h3>
+                        <p>{stats?.cancelledBookings || 0}</p>
+                      </div>
+                    </div>
+                    <div className="stat-card-mini card-dark-blue">
+                      <div className="card-mini-icon">🛣️</div>
+                      <div className="card-mini-info">
+                        <h3>Ongoing Trips</h3>
+                        <p>{stats?.ongoingTrips || 0}</p>
+                      </div>
+                    </div>
+                    <div className="stat-card-mini card-green">
+                      <div className="card-mini-icon">✅</div>
+                      <div className="card-mini-info">
+                        <h3>Trips Completed</h3>
+                        <p>{stats?.completedRides || 0}</p>
+                      </div>
                     </div>
                   </div>
 
-                  <div className="overview-sections">
-                    <div className="glass-card recent-activity">
-                      <h3>Recent Trips</h3>
-                      <div className="monitoring-list">
-                        {stats?.recentTrips?.length === 0 && <div className="muted">No trips yet</div>}
-                        {stats?.recentTrips?.map(t => (
-                          <div className="monitor-item" key={t._id}>
-                            <span>📍 {t.pickup} → {t.status === 'started' || t.status === 'completed' ? t.drop : '??'}</span>
-                            <span className={getStatusColor(t.status)}>{t.status === 'completed' ? '✅' : t.status === 'cancelled' ? '❌' : '🔴'} {t.status}</span>
-                          </div>
-                        ))}
+                  <div className="stat-card-mini card-pink system-users-card">
+                      <div className="card-mini-icon">👨‍💻</div>
+                      <div className="card-mini-info">
+                        <h3>System Users</h3>
+                        <p>{stats?.systemUsers || 0}</p>
                       </div>
+                  </div>
+
+                  <div className="booking-list-section">
+                    <div className="section-header-row">
+                      <h3>Booking List</h3>
+                    </div>
+                    <div className="glass-card table-container">
+                      <table className="admin-table modern-table">
+                        <thead>
+                          <tr>
+                            <th>#</th>
+                            <th>Date Booked</th>
+                            <th>Ref. Code</th>
+                            <th>Cab</th>
+                            <th>Client</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {stats?.recentTrips?.length === 0 && (
+                            <tr><td colSpan="7" className="muted">No recent bookings</td></tr>
+                          )}
+                          {stats?.recentTrips?.map((t, idx) => (
+                            <tr key={t._id}>
+                              <td>{idx + 1}</td>
+                              <td>{new Date(t.createdAt).toLocaleString('en-IN', { dateStyle: 'short', timeStyle: 'short' })}</td>
+                              <td>{t._id.slice(-8).toUpperCase()}</td>
+                              <td>{t.cabType}</td>
+                              <td>{t.phone}</td>
+                              <td>
+                                <span className={`badge-pill status-${t.status}`}>
+                                  {t.status}
+                                </span>
+                              </td>
+                              <td>
+                                <button className="action-btn-view" onClick={() => alert(`Viewing ID: ${t._id}`)}>
+                                  <span className="eye-icon">👁️</span> View
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
                   </div>
                 </>

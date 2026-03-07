@@ -9,6 +9,7 @@ const userSchema = new mongoose.Schema(
     name: { type: String, default: "User" },
     role: { type: String, enum: ["customer", "driver", "admin"], default: "customer" },
     wallet: { type: Number, default: 0 },
+    isOnline: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

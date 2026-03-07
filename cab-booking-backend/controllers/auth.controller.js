@@ -156,3 +156,19 @@ export const getUserById = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+// POST /api/auth/update-online-status
+export const updateOnlineStatus = async (req, res) => {
+  try {
+    const { userId, isOnline } = req.body;
+    if (!userId) return res.status(400).json({ message: "User ID required" });
+
+    const user = await User.findByIdAndUpdate(userId, { isOnline }, { new: true });
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    res.json({ success: true, message: `Status updated to ${isOnline ? 'online' : 'offline'}`, isOnline: user.isOnline });
+  } catch (err) {
+    console.error("Update online status error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
