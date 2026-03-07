@@ -165,6 +165,13 @@ const AdminDashboard = () => {
                         <p>{stats?.completedRides || 0}</p>
                       </div>
                     </div>
+                    <div className="stat-card-mini card-gold">
+                      <div className="card-mini-icon">💰</div>
+                      <div className="card-mini-info">
+                        <h3>Total Revenue</h3>
+                        <p>{formatCurrency(stats?.totalRevenue || 0)}</p>
+                      </div>
+                    </div>
                     <div className="stat-card-mini card-pink">
                         <div className="card-mini-icon">👨‍💻</div>
                         <div className="card-mini-info">
@@ -440,6 +447,9 @@ const AdminDashboard = () => {
                   <p><strong>Drop:</strong> {selectedItem.data.drop}</p>
                   <p><strong>Fare:</strong> ₹{selectedItem.data.fare}</p>
                   <p><strong>Status:</strong> <span className={`badge-pill status-${selectedItem.data.status}`}>{selectedItem.data.status}</span></p>
+                  <p><strong>Cab Type:</strong> {selectedItem.data.cabType}</p>
+                  {selectedItem.data.driverName && <p><strong>Driver:</strong> {selectedItem.data.driverName}</p>}
+                  {selectedItem.data.vehicleInfo && <p><strong>Vehicle:</strong> {selectedItem.data.vehicleInfo}</p>}
                   <p><strong>Date:</strong> {new Date(selectedItem.data.createdAt).toLocaleString()}</p>
                 </div>
               )}
@@ -452,11 +462,41 @@ const AdminDashboard = () => {
                 </div>
               )}
               {selectedItem.type === 'client' && (
-                <div className="detail-list">
-                  <p><strong>Name:</strong> {selectedItem.data.name}</p>
-                  <p><strong>Email:</strong> {selectedItem.data.email}</p>
-                  <p><strong>Phone:</strong> {selectedItem.data.phone}</p>
-                  <p><strong>Joined:</strong> {new Date(selectedItem.data.createdAt).toLocaleDateString()}</p>
+                <div className="detail-list full-width-details">
+                  <div className="client-info-banner">
+                    <p><strong>Name:</strong> {selectedItem.data.name}</p>
+                    <p><strong>Email:</strong> {selectedItem.data.email}</p>
+                    <p><strong>Phone:</strong> {selectedItem.data.phone}</p>
+                    <p><strong>Joined:</strong> {new Date(selectedItem.data.createdAt).toLocaleDateString()}</p>
+                  </div>
+                  
+                  <h4 className="modal-sub-title">Recent Trip History</h4>
+                  <div className="modal-table-wrapper">
+                    <table className="mini-table">
+                      <thead>
+                        <tr>
+                          <th>Date</th>
+                          <th>Route</th>
+                          <th>Fare</th>
+                          <th>Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {trips.filter(t => t.phone === selectedItem.data.phone).length === 0 ? (
+                          <tr><td colSpan="4" className="muted center">No trip history found</td></tr>
+                        ) : (
+                          trips.filter(t => t.phone === selectedItem.data.phone).slice(0, 5).map(t => (
+                            <tr key={t._id}>
+                              <td>{new Date(t.createdAt).toLocaleDateString()}</td>
+                              <td>{t.pickup} → {t.drop}</td>
+                              <td>₹{t.fare}</td>
+                              <td><span className={`badge-mini status-${t.status}`}>{t.status}</span></td>
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               )}
             </div>

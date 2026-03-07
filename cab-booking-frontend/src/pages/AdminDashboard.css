@@ -20,6 +20,7 @@
     display: flex;
     padding-top: 80px;
     background: var(--bg-light);
+    min-height: calc(100vh - 80px); /* Ensure it fills the screen */
 }
 
 /* Sidebar */
@@ -97,6 +98,15 @@
     padding: 40px;
     overflow-x: hidden;
     min-width: 0;
+    background: var(--bg-light);
+    display: flex;
+    flex-direction: column;
+}
+
+.admin-view {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 .content-header-admin {
@@ -113,8 +123,8 @@
 
 .stats-grid-admin8 {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Larger min-width to fill better */
+    gap: 24px;
     margin-bottom: 32px;
 }
 
@@ -203,6 +213,107 @@
     border-bottom: none;
 }
 
+.action-btn-view {
+    background: #e7f1ff;
+    color: #0d6efd;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.action-btn-view:hover {
+    background: #0d6efd;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.2);
+}
+
+/* Modal Styles */
+.admin-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    padding: 20px;
+}
+
+.admin-modal-content {
+    width: 100%;
+    max-width: 500px;
+    background: #fff;
+    padding: 0;
+    overflow: hidden;
+}
+
+.modal-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--text-main);
+    letter-spacing: 0.5px;
+}
+
+.close-modal {
+    background: #f8f9fa;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: all 0.2s;
+}
+
+.close-modal:hover {
+    background: #e9ecef;
+    color: #000;
+}
+
+.modal-body {
+    padding: 24px;
+}
+
+.detail-list p {
+    margin: 0 0 16px 0;
+    font-size: 15px;
+    color: #444;
+    display: flex;
+    justify-content: space-between;
+}
+
+.detail-list p strong {
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.view-inner-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 24px;
+}
+
 /* Mobile Toggle */
 .mobile-sidebar-toggle {
     display: none;
@@ -286,6 +397,7 @@
 .card-dark-blue .card-mini-icon { background: linear-gradient(135deg, #2c3e50, #34495e); }
 .card-green .card-mini-icon { background: linear-gradient(135deg, #27ae60, #2ecc71); }
 .card-pink .card-mini-icon { background: linear-gradient(135deg, #d81b60, #f06292); }
+.card-gold .card-mini-icon { background: linear-gradient(135deg, #f39c12, #e67e22); }
 
 .badge-pill {
     display: inline-block;
@@ -311,3 +423,70 @@
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
 }
+
+/* Enhanced Modal Styles */
+.full-width-details {
+    width: 100%;
+}
+
+.client-info-banner {
+    background: #f8f9fa;
+    padding: 16px;
+    border-radius: 12px;
+    margin-bottom: 24px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.client-info-banner p {
+    margin: 0 !important;
+    font-size: 14px;
+}
+
+.modal-sub-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-main);
+    margin: 0 0 16px 0;
+}
+
+.modal-table-wrapper {
+    overflow-x: auto;
+    border: 1px solid #f0f0f0;
+    border-radius: 10px;
+}
+
+.mini-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.mini-table th {
+    background: #f8f9fa;
+    padding: 10px 12px;
+    text-align: left;
+    color: var(--text-muted);
+    font-weight: 600;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.mini-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.badge-mini {
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.admin-modal-content {
+    max-width: 650px !important; /* Wider for history table */
+}
+
+.center { text-align: center; }
