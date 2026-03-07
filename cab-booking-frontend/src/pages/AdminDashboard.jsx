@@ -434,7 +434,7 @@ const AdminDashboard = () => {
       {/* Modal for Details */}
       {selectedItem && (
         <div className="admin-modal-overlay" onClick={() => setSelectedItem(null)}>
-          <div className="admin-modal-content glass-card animate-fade-in" onClick={e => e.stopPropagation()}>
+          <div className={`admin-modal-content glass-card animate-fade-in ${selectedItem.type === 'client' ? 'wide' : ''}`} onClick={e => e.stopPropagation()}>
             <div className="modal-header">
               <h3>{selectedItem.type.toUpperCase()} DETAILS</h3>
               <button className="close-modal" onClick={() => setSelectedItem(null)}>✕</button>
