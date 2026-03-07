@@ -486,3 +486,31 @@
 .book-again-btn:hover {
     opacity: 0.88;
 }
+
+/* ── OTP Display ── */
+.otp-display-container {
+    margin-top: 18px;
+    padding: 16px;
+    background: rgba(250, 204, 21, 0.1);
+    border: 1px dashed rgba(250, 204, 21, 0.4);
+    border-radius: 12px;
+    text-align: center;
+}
+
+.otp-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.6);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.otp-value {
+    font-size: 28px;
+    font-weight: 800;
+    color: #facc15;
+    letter-spacing: 4px;
+    font-family: 'Inter', sans-serif;
+    text-shadow: 0 0 10px rgba(250, 204, 21, 0.3);
+}

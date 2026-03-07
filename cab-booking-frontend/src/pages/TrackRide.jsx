@@ -213,6 +213,13 @@ export default function TrackRide() {
                         {booking.status === "arrived" && (
                             <div className="arrived-pill">🏃 Driver has arrived at your location!</div>
                         )}
+
+                        {(booking.status === "accepted" || booking.status === "arrived") && booking.startOtp && (
+                            <div className="otp-display-container">
+                                <div className="otp-label">Share this OTP with driver to start ride:</div>
+                                <div className="otp-value">{booking.startOtp}</div>
+                            </div>
+                        )}
                     </div>
                 )}
 

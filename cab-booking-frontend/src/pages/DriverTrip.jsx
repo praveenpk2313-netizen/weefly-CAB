@@ -195,11 +195,6 @@ export default function DriverTrip() {
 
           {shouldShowOtpSection && status !== "started" && status !== "completed" && (
             <div className="otp-verification-section">
-              <div className="debug-otp-display">
-                <span className="debug-label">Ride Start OTP (Demo)</span>
-                <span className="debug-value">{trip.startOtp}</span>
-              </div>
-
               <p className="section-hint">Enter customer OTP to start the ride</p>
               <input
                 className="premium-input otp-inline-input"
