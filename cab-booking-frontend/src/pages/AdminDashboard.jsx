@@ -442,60 +442,60 @@ const AdminDashboard = () => {
             <div className="modal-body">
               {selectedItem.type === 'booking' && (
                 <div className="detail-list">
-                  <p><strong>Ref Code:</strong> {selectedItem.data._id.toUpperCase()}</p>
-                  <p><strong>Pickup:</strong> {selectedItem.data.pickup}</p>
-                  <p><strong>Drop:</strong> {selectedItem.data.drop}</p>
-                  <p><strong>Fare:</strong> ₹{selectedItem.data.fare}</p>
-                  <p><strong>Status:</strong> <span className={`badge-pill status-${selectedItem.data.status}`}>{selectedItem.data.status}</span></p>
-                  <p><strong>Cab Type:</strong> {selectedItem.data.cabType}</p>
-                  {selectedItem.data.driverName && <p><strong>Driver:</strong> {selectedItem.data.driverName}</p>}
-                  {selectedItem.data.vehicleInfo && <p><strong>Vehicle:</strong> {selectedItem.data.vehicleInfo}</p>}
-                  <p><strong>Date:</strong> {new Date(selectedItem.data.createdAt).toLocaleString()}</p>
+                  <div className="detail-item"><label>Reference Code</label><span>{selectedItem.data._id.toUpperCase()}</span></div>
+                  <div className="detail-item"><label>Pickup Location</label><span>{selectedItem.data.pickup}</span></div>
+                  <div className="detail-item"><label>Drop Location</label><span>{selectedItem.data.drop}</span></div>
+                  <div className="detail-item"><label>Estimated Fare</label><span>₹{selectedItem.data.fare}</span></div>
+                  <div className="detail-item"><label>Current Status</label><span className={`badge-pill status-${selectedItem.data.status}`}>{selectedItem.data.status}</span></div>
+                  <div className="detail-item"><label>Vehicle Category</label><span>{selectedItem.data.cabType}</span></div>
+                  <div className="detail-item"><label>Driver Name</label><span>{selectedItem.data.driverName || 'Not Assigned'}</span></div>
+                  <div className="detail-item"><label>Vehicle Info</label><span>{selectedItem.data.vehicleInfo || 'N/A'}</span></div>
+                  <div className="detail-item"><label>Booking Date</label><span>{new Date(selectedItem.data.createdAt).toLocaleString()}</span></div>
                 </div>
               )}
               {selectedItem.type === 'driver' && (
                 <div className="detail-list">
-                  <p><strong>Name:</strong> {selectedItem.data.name}</p>
-                  <p><strong>Phone:</strong> {selectedItem.data.phone}</p>
-                  <p><strong>Wallet:</strong> ₹{selectedItem.data.wallet}</p>
-                  <p><strong>Current Status:</strong> {selectedItem.data.isOnline ? 'Online' : 'Offline'}</p>
+                  <div className="detail-item"><label>Full Name</label><span>{selectedItem.data.name}</span></div>
+                  <div className="detail-item"><label>Mobile Number</label><span>{selectedItem.data.phone}</span></div>
+                  <div className="detail-item"><label>Wallet Balance</label><span>₹{selectedItem.data.wallet}</span></div>
+                  <div className="detail-item"><label>Availability Status</label><span>{selectedItem.data.isOnline ? 'Online' : 'Offline'}</span></div>
                 </div>
               )}
               {selectedItem.type === 'client' && (
-                <div className="detail-list full-width-details">
-                  <div className="client-info-banner">
-                    <p><strong>Name:</strong> {selectedItem.data.name}</p>
-                    <p><strong>Email:</strong> {selectedItem.data.email}</p>
-                    <p><strong>Phone:</strong> {selectedItem.data.phone}</p>
-                    <p><strong>Joined:</strong> {new Date(selectedItem.data.createdAt).toLocaleDateString()}</p>
-                  </div>
+                <div className="detail-list">
+                  <div className="detail-item"><label>Customer Name</label><span>{selectedItem.data.name}</span></div>
+                  <div className="detail-item"><label>Email Address</label><span>{selectedItem.data.email}</span></div>
+                  <div className="detail-item"><label>Phone Number</label><span>{selectedItem.data.phone}</span></div>
+                  <div className="detail-item"><label>Joined Date</label><span>{new Date(selectedItem.data.createdAt).toLocaleDateString()}</span></div>
                   
-                  <h4 className="modal-sub-title">Recent Trip History</h4>
-                  <div className="modal-table-wrapper">
-                    <table className="mini-table">
-                      <thead>
-                        <tr>
-                          <th>Date</th>
-                          <th>Route</th>
-                          <th>Fare</th>
-                          <th>Status</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {trips.filter(t => t.phone === selectedItem.data.phone).length === 0 ? (
-                          <tr><td colSpan="4" className="muted center">No trip history found</td></tr>
-                        ) : (
-                          trips.filter(t => t.phone === selectedItem.data.phone).slice(0, 5).map(t => (
-                            <tr key={t._id}>
-                              <td>{new Date(t.createdAt).toLocaleDateString()}</td>
-                              <td>{t.pickup} → {t.drop}</td>
-                              <td>₹{t.fare}</td>
-                              <td><span className={`badge-mini status-${t.status}`}>{t.status}</span></td>
-                            </tr>
-                          ))
-                        )}
-                      </tbody>
-                    </table>
+                  <div className="modal-wide-section">
+                    <h4 className="modal-sub-title">Recent Trip History</h4>
+                    <div className="modal-table-wrapper card-premium">
+                      <table className="mini-table">
+                        <thead>
+                          <tr>
+                            <th>Date</th>
+                            <th>Route</th>
+                            <th>Fare</th>
+                            <th>Status</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {trips.filter(t => t.phone === selectedItem.data.phone).length === 0 ? (
+                            <tr><td colSpan="4" className="muted center">No trip history found</td></tr>
+                          ) : (
+                            trips.filter(t => t.phone === selectedItem.data.phone).slice(0, 5).map(t => (
+                              <tr key={t._id}>
+                                <td>{new Date(t.createdAt).toLocaleDateString()}</td>
+                                <td>{t.pickup} → {t.drop}</td>
+                                <td>₹{t.fare}</td>
+                                <td><span className={`badge-pill status-${t.status}`} style={{fontSize: '10px', padding: '4px 8px'}}>{t.status}</span></td>
+                              </tr>
+                            ))
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
                 </div>
               )}
