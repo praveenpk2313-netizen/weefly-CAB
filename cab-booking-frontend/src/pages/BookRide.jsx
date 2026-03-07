@@ -83,8 +83,10 @@ export default function BookRide() {
   const [userName, setUserName] = useState("");
 
   const baseFare = 40;
-  const rates = { Mini: 12, Sedan: 15, SUV: 18 };
+  const rates = { Bike: 6, Auto: 10, Mini: 12, Sedan: 15, SUV: 18 };
   const vehicles = [
+    { type: "Bike", seats: 1, eta: "2 min" },
+    { type: "Auto", seats: 3, eta: "4 min" },
     { type: "Mini", seats: 4, eta: "5 min" },
     { type: "Sedan", seats: 4, eta: "7 min" },
     { type: "SUV", seats: 6, eta: "10 min" },
