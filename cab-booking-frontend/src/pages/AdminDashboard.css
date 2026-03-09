@@ -37,9 +37,9 @@
     position: sticky;
     top: 80px;
     z-index: 100;
-    border-right: 1px solid rgba(255, 255, 255, 0.05);
+    border-right: 2px solid rgba(255, 255, 255, 0.15); /* More distinct border */
     transition: all 0.3s ease;
-    padding: 24px 10%; /* Increased padding for the wide sidebar */
+    padding: 24px 10%;
     width: 100%;
 }
 
@@ -235,6 +235,23 @@
 .table-container {
     width: 100%;
     margin-top: 10px;
+    max-height: 400px; /* Constrain height to approx 5-6 rows */
+    overflow-y: auto;  /* Enable vertical scroll */
+    scrollbar-width: thin;
+    scrollbar-color: #6f42c1 #f1f1f1;
+}
+
+.table-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.table-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+    background: #6f42c1;
+    border-radius: 10px;
 }
 
 .admin-table {
