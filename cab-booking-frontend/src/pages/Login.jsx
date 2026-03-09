@@ -29,15 +29,26 @@ export default function Login() {
 
       if (res.data.success) {
         if (activeRole === 'admin') {
+          // Admin login is handled separately via /admin/login
           localStorage.setItem("adminToken", res.data.token);
           localStorage.setItem("role", "admin");
           navigate("/admin");
         } else {
+          // Handle regular Customer and Driver login
+          const userRole = res.data.user.role;
+
+          // Check if the user's role matches the selected tab
+          if (userRole !== activeRole) {
+            alert(`This account is registered as a ${userRole}. Please use the "${userRole.charAt(0).toUpperCase() + userRole.slice(1)}" tab to login.`);
+            setLoading(false);
+            return;
+          }
+
           localStorage.setItem("token", res.data.token);
-          localStorage.setItem("role", res.data.user.role);
+          localStorage.setItem("role", userRole);
           localStorage.setItem("user", JSON.stringify(res.data.user));
           
-          if (res.data.user.role === 'driver') {
+          if (userRole === 'driver') {
             navigate("/driver");
           } else {
             navigate("/book");
