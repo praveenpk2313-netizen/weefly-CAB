@@ -8,6 +8,7 @@ import "./AdminDashboard.css";
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [stats, setStats] = useState(null);
   const [trips, setTrips] = useState([]);
   const [drivers, setDrivers] = useState([]);
@@ -73,8 +74,13 @@ const AdminDashboard = () => {
 
   return (
     <div className="admin-dashboard-container">
+      {/* Mobile Toggle Button */}
+      <button className="mobile-toggle-btn" onClick={() => setSidebarOpen(!sidebarOpen)}>
+        {sidebarOpen ? '✕' : '☰'}
+      </button>
+
       {/* ── Sidebar ── */}
-      <aside className="admin-sidebar">
+      <aside className={`admin-sidebar ${sidebarOpen ? 'sidebar-open' : ''}`}>
         <a href="#" className="sidebar-logo">
           <span>🚕</span> Weefly Admin
         </a>
@@ -82,35 +88,35 @@ const AdminDashboard = () => {
         <nav className="sidebar-nav">
           <button 
             className={`nav-item ${activeTab === 'dashboard' ? 'active' : ''}`}
-            onClick={() => setActiveTab('dashboard')}
+            onClick={() => { setActiveTab('dashboard'); setSidebarOpen(false); }}
           >
             📊 Dashboard
           </button>
           
           <button 
             className={`nav-item ${activeTab === 'drivers' ? 'active' : ''}`}
-            onClick={() => setActiveTab('drivers')}
+            onClick={() => { setActiveTab('drivers'); setSidebarOpen(false); }}
           >
             🚖 Driver List
           </button>
           
           <button 
             className={`nav-item ${activeTab === 'customers' ? 'active' : ''}`}
-            onClick={() => setActiveTab('customers')}
+            onClick={() => { setActiveTab('customers'); setSidebarOpen(false); }}
           >
             👥 Customer List
           </button>
           
           <button 
             className={`nav-item ${activeTab === 'revenue' ? 'active' : ''}`}
-            onClick={() => setActiveTab('revenue')}
+            onClick={() => { setActiveTab('revenue'); setSidebarOpen(false); }}
           >
             💰 Total Revenue
           </button>
           
           <button 
             className={`nav-item ${activeTab === 'reports' ? 'active' : ''}`}
-            onClick={() => setActiveTab('reports')}
+            onClick={() => { setActiveTab('reports'); setSidebarOpen(false); }}
           >
             📄 Reports
           </button>
