@@ -3,7 +3,16 @@ import { useNavigate, useParams } from "react-router-dom";
 import { api } from "../api";
 import Navbar from "../components/Navbar";
 import RouteMap from "../components/RouteMap";
+import L from "leaflet";
 import "./Driver.css";
+
+// Same icon fix if needed for any inline maps
+const carIcon = L.divIcon({
+  html: '<div style="display:flex;justify-content:center;align-items:center;font-size:28px;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.5));">🚕</div>',
+  iconSize: [32, 32],
+  iconAnchor: [16, 16],
+  className: 'car-marker-icon',
+});
 
 export default function DriverTrip() {
   const { id } = useParams();
@@ -55,17 +64,19 @@ export default function DriverTrip() {
       (pos) => {
         lastLat = pos.coords.latitude;
         lastLng = pos.coords.longitude;
+        // Optional: trigger immediate send on significant move? 
+        // For now, faster interval is simpler.
       },
       (err) => console.warn("GPS error:", err.message),
-      { enableHighAccuracy: true, maximumAge: 5000, timeout: 10000 }
+      { enableHighAccuracy: true, maximumAge: 3000, timeout: 10000 }
     );
 
-    // Send to backend every 5 seconds
+    // Send to backend every 3 seconds
     locationIntervalRef.current = setInterval(() => {
       if (lastLat !== null && lastLng !== null) {
         sendLocation(lastLat, lastLng);
       }
-    }, 5000);
+    }, 3000);
 
     return () => {
       if (gpsWatchRef.current !== null) navigator.geolocation.clearWatch(gpsWatchRef.current);

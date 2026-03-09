@@ -19,7 +19,7 @@ L.Icon.Default.mergeOptions({
 });
 
 const driverCarIcon = L.divIcon({
-  html: '<div style="font-size:30px;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.6));">🚕</div>',
+  html: '<div style="display:flex;justify-content:center;align-items:center;font-size:30px;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.6));">🚕</div>',
   iconSize: [34, 34],
   iconAnchor: [17, 17],
   className: 'driver-car-marker',
@@ -108,7 +108,7 @@ export default function Driver() {
         setGpsStatus("active");
       },
       () => setGpsStatus("denied"),
-      { enableHighAccuracy: true, maximumAge: 5000, timeout: 15000 }
+      { enableHighAccuracy: true, maximumAge: 3000, timeout: 15000 }
     );
     gpsWatchRef.current = watchId;
 
@@ -116,6 +116,27 @@ export default function Driver() {
       if (watchId !== null) navigator.geolocation.clearWatch(watchId);
     };
   }, []);
+
+  // Sync location to backend if trip is active (even from dashboard)
+  useEffect(() => {
+    if (!activeTrip?._id || !driverLatLng) return;
+
+    const sync = async () => {
+      try {
+        await api.post("/booking/update-driver-location", {
+          bookingId: activeTrip._id,
+          lat: driverLatLng[0],
+          lng: driverLatLng[1]
+        });
+      } catch (e) {
+        // Silent fail
+      }
+    };
+
+    const interval = setInterval(sync, 3000);
+    sync(); // Immediate first update
+    return () => clearInterval(interval);
+  }, [activeTrip?._id, driverLatLng]);
 
   const DRIVER_ID = driver?.id || driver?._id || "DRIVER-001";
 

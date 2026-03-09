@@ -28,7 +28,7 @@ L.Icon.Default.mergeOptions({
 
 // Custom car icon for the driver
 const carIcon = L.divIcon({
-    html: '<div style="font-size:28px;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.5));">🚕</div>',
+    html: '<div style="display:flex;justify-content:center;align-items:center;font-size:28px;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.5));">🚕</div>',
     iconSize: [32, 32],
     iconAnchor: [16, 16],
     className: 'car-marker-icon',
