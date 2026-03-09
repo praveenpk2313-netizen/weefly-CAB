@@ -103,17 +103,20 @@
 .admin-main-content {
     padding: 40px;
     min-width: 0;
-    width: 100%;
+    flex: 1;
     background: var(--bg-light);
     display: flex;
     flex-direction: column;
+    align-items: stretch; /* ✅ FORCE CHILDREN TO STRETCH FULL WIDTH */
 }
 
 /* ✅ FULL WIDTH CONTENT */
 .admin-view {
     width: 100%;
-    max-width: 100%;
     margin: 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 .main-title-admin {
@@ -187,6 +190,7 @@
     border: 1px solid #eee;
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.04);
     overflow: hidden;
+    width: 100%; /* ✅ ENSURE CARDS FILL CONTAINER */
 }
 
 .table-container {
@@ -194,6 +198,7 @@
     margin-top: 10px;
     max-height: 400px;
     overflow-y: auto;
+    overflow-x: auto; /* ✅ ALLOW HORIZONTAL SCROLL ON WIDE TABLES */
 }
 
 .admin-table {
