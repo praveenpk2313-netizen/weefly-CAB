@@ -280,4 +280,37 @@
     .bar.open:nth-child(3) {
         transform: translateY(-7px) rotate(-45deg);
     }
+
+    .mobile-menu-header {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 24px 32px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        box-sizing: border-box;
+    }
+
+    .mobile-menu-title {
+        color: var(--primary-yellow, #facc15);
+        font-weight: 700;
+        font-size: 18px;
+    }
+
+    .mobile-close-btn {
+        background: none;
+        border: none;
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: color 0.2s;
+    }
+
+    .mobile-close-btn:hover {
+        color: #fff;
+    }
 }

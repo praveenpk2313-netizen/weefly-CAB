@@ -64,6 +64,10 @@ export default function Navbar() {
                     </Link>
 
                     <div className={`nav-links ${mobileMenuOpen ? "active" : ""}`}>
+                        <div className="mobile-menu-header">
+                            <span className="mobile-menu-title">Menu</span>
+                            <button className="mobile-close-btn" onClick={() => setMobileMenuOpen(false)}>✕ Back</button>
+                        </div>
                         {isHomePage ? (
                             <>
                                 <a href="#why-choose-us" onClick={(e) => { e.preventDefault(); scrollToSection('why-choose-us'); }}>Why Choose Us</a>
@@ -72,11 +76,12 @@ export default function Navbar() {
                             </>
                         ) : (
                             <>
-                                <Link to="/" onClick={() => setMobileMenuOpen(false)}>Home</Link>
-
-                                {role === "driver" && (
+                                {role === "driver" ? (
                                     <Link to="/driver" onClick={() => setMobileMenuOpen(false)}>Dashboard</Link>
+                                ) : (
+                                    <Link to="/" onClick={() => setMobileMenuOpen(false)}>Home</Link>
                                 )}
+                                
                                 <Link to="/history" onClick={() => setMobileMenuOpen(false)}>My Bookings</Link>
                             </>
                         )}

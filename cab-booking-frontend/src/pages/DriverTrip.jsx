@@ -88,7 +88,6 @@ export default function DriverTrip() {
     try {
       setUpdating(true);
       await updateStatus("cancelled");
-      await fetchTrip();
       navigate("/driver");
     } catch (err) {
       alert(err?.response?.data?.message || "Cancel failed");
