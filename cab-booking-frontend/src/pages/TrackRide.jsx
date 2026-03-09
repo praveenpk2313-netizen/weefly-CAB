@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { api } from "../api";
 import {
@@ -34,12 +34,20 @@ const carIcon = L.divIcon({
     className: 'car-marker-icon',
 });
 
-// Helper to fly to a position
-function FlyTo({ position, zoom }) {
+// Fit map bounds to show all markers (runs only once)
+function FitBounds({ pickup, drop }) {
     const map = useMap();
+    const fitted = useRef(false);
     useEffect(() => {
-        if (position) map.flyTo(position, zoom, { duration: 1.0 });
-    }, [position, zoom, map]);
+        if (fitted.current || !pickup) return;
+        fitted.current = true;
+        if (drop) {
+            const bounds = L.latLngBounds([pickup, drop]).pad(0.15);
+            map.fitBounds(bounds, { maxZoom: 15 });
+        } else {
+            map.setView(pickup, 14);
+        }
+    }, [pickup, drop, map]);
     return null;
 }
 
@@ -91,6 +99,7 @@ export default function TrackRide() {
     const [routeLine, setRouteLine] = useState(null);
     const [driverPos, setDriverPos] = useState(null);
     const [driverStep, setDriverStep] = useState(0);
+    const prevStatusRef = useRef(null);
 
     const fetchBooking = async () => {
         try {
@@ -184,14 +193,18 @@ export default function TrackRide() {
             const maxSteps = status === "started" ? (routeLine?.length || 20) : 8;
             const t = setInterval(() => {
                 setDriverStep(prev => (prev < maxSteps - 1 ? prev + 1 : prev));
-            }, 2000);
+            }, 2500);
             return () => clearInterval(t);
         }
     }, [booking?.status, routeLine]);
 
-    // Reset driver step when status changes
+    // Reset driver step only when status actually changes
     useEffect(() => {
-        setDriverStep(0);
+        if (!booking) return;
+        if (prevStatusRef.current && prevStatusRef.current !== booking.status) {
+            setDriverStep(0);
+        }
+        prevStatusRef.current = booking.status;
     }, [booking?.status]);
 
     const mapCenter = pickupLL || [13.0827, 80.2707];
@@ -248,7 +261,7 @@ export default function TrackRide() {
                                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                                 />
 
-                                <FlyTo position={driverPos || mapCenter} zoom={14} />
+                                <FitBounds pickup={pickupLL} drop={dropLL} />
 
                                 {/* Pickup Marker */}
                                 <Marker position={pickupLL}>
