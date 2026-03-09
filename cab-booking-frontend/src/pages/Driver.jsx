@@ -1,9 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { api } from "../api";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import RideRequestModal from "../components/RideRequestModal";
-import LocationAutocomplete from "../components/LocationAutocomplete";
 import "./Driver.css";
 
 export default function Driver() {
@@ -20,6 +19,9 @@ export default function Driver() {
   const [currentRequest, setCurrentRequest] = useState(null);
   const [driver, setDriver] = useState(null);
   const [wallet, setWallet] = useState(0);
+  const [gpsStatus, setGpsStatus] = useState("acquiring"); // "acquiring" | "active" | "denied"
+  const [driverLatLng, setDriverLatLng] = useState(null);
+  const gpsWatchRef = useRef(null);
   const nav = useNavigate();
 
   useEffect(() => {
@@ -51,6 +53,39 @@ export default function Driver() {
     };
     fetchUser();
   }, [nav]);
+
+  // Auto-start GPS tracking on mount
+  useEffect(() => {
+    if (!navigator.geolocation) {
+      setGpsStatus("denied");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setDriverLatLng([pos.coords.latitude, pos.coords.longitude]);
+        setGpsStatus("active");
+      },
+      () => setGpsStatus("denied"),
+      { enableHighAccuracy: true }
+    );
+
+    // Continuously watch position
+    gpsWatchRef.current = navigator.geolocation.watchPosition(
+      (pos) => {
+        setDriverLatLng([pos.coords.latitude, pos.coords.longitude]);
+        setGpsStatus("active");
+      },
+      () => setGpsStatus("denied"),
+      { enableHighAccuracy: true, maximumAge: 10000, timeout: 15000 }
+    );
+
+    return () => {
+      if (gpsWatchRef.current !== null) {
+        navigator.geolocation.clearWatch(gpsWatchRef.current);
+      }
+    };
+  }, []);
 
   const DRIVER_ID = driver?.id || driver?._id || "DRIVER-001";
 
@@ -144,6 +179,11 @@ export default function Driver() {
               <div className="driver-id-badge">ID: {DRIVER_ID}</div>
               <div className="driver-rating-badge">⭐ {rating}</div>
               <div className="kyc-status-badge verified">KYC Verified</div>
+              <div className={`gps-status-badge gps-${gpsStatus}`}>
+                {gpsStatus === "active" && "📡 GPS Active"}
+                {gpsStatus === "acquiring" && "🔄 Acquiring GPS..."}
+                {gpsStatus === "denied" && "⚠️ GPS Denied"}
+              </div>
             </div>
           </div>
 
@@ -238,11 +278,13 @@ export default function Driver() {
                 <div className="orders-filter-bar">
                   <div className="input-container filter-input">
                     <span className="input-icon">🔍</span>
-                    <LocationAutocomplete
-                      placeholder="Search orders by location..."
+                    <input
+                      type="text"
+                      className="autocomplete-field"
+                      placeholder="Filter by pickup or drop location..."
                       value={searchLocation}
-                      onChange={setSearchLocation}
-                      onSelect={(label) => setSearchLocation(label)}
+                      onChange={(e) => setSearchLocation(e.target.value)}
+                      style={{ background: 'transparent', border: 'none', outline: 'none', color: '#fff', width: '100%', fontSize: '14px' }}
                     />
                   </div>
                 </div>
