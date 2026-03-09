@@ -94,7 +94,7 @@ export default function TrackRide() {
             <div className="track-wrap">
                 <div className="track-loading">
                     <p style={{ color: "#f87171" }}>Booking not found.</p>
-                    <button className="back-btn" onClick={() => nav("/book")}>← Book Again</button>
+                    <button className="back-btn" onClick={() => nav("/book")}>🚕 Book Again</button>
                 </div>
             </div>
         );
@@ -107,7 +107,7 @@ export default function TrackRide() {
         <div className="track-wrap">
             {/* Header */}
             <div className="track-header">
-                <button className="back-btn" onClick={() => nav("/book")}>← Back</button>
+                <button className="back-btn" onClick={() => nav(-1)}>🚕 Back</button>
                 <h2 className="track-title">🛰 Track Your Ride</h2>
                 <div />
             </div>
