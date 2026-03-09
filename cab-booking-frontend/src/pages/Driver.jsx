@@ -3,7 +3,36 @@ import { api } from "../api";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import RideRequestModal from "../components/RideRequestModal";
+import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import L from "leaflet";
 import "./Driver.css";
+
+import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
+import markerIcon from "leaflet/dist/images/marker-icon.png";
+import markerShadow from "leaflet/dist/images/marker-shadow.png";
+
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: markerIcon2x,
+  iconUrl: markerIcon,
+  shadowUrl: markerShadow,
+});
+
+const driverCarIcon = L.divIcon({
+  html: '<div style="font-size:30px;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.6));">🚕</div>',
+  iconSize: [34, 34],
+  iconAnchor: [17, 17],
+  className: 'driver-car-marker',
+});
+
+// Smoothly move map centre to track driver
+function RecenterMap({ position }) {
+  const map = useMap();
+  useEffect(() => {
+    if (position) map.panTo(position, { animate: true, duration: 0.8 });
+  }, [position, map]);
+  return null;
+}
 
 export default function Driver() {
   const [orders, setOrders] = useState([]);
@@ -61,6 +90,8 @@ export default function Driver() {
       return;
     }
 
+    let watchId = null;
+
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         setDriverLatLng([pos.coords.latitude, pos.coords.longitude]);
@@ -71,19 +102,18 @@ export default function Driver() {
     );
 
     // Continuously watch position
-    gpsWatchRef.current = navigator.geolocation.watchPosition(
+    watchId = navigator.geolocation.watchPosition(
       (pos) => {
         setDriverLatLng([pos.coords.latitude, pos.coords.longitude]);
         setGpsStatus("active");
       },
       () => setGpsStatus("denied"),
-      { enableHighAccuracy: true, maximumAge: 10000, timeout: 15000 }
+      { enableHighAccuracy: true, maximumAge: 5000, timeout: 15000 }
     );
+    gpsWatchRef.current = watchId;
 
     return () => {
-      if (gpsWatchRef.current !== null) {
-        navigator.geolocation.clearWatch(gpsWatchRef.current);
-      }
+      if (watchId !== null) navigator.geolocation.clearWatch(watchId);
     };
   }, []);
 
@@ -225,6 +255,38 @@ export default function Driver() {
               <p>₹{earnings.weekly}</p>
             </div>
           </div>
+        </div>
+
+        {/* ── LIVE LOCATION MAP ── */}
+        <div className="driver-live-map-section">
+          <div className="driver-map-label">
+            {gpsStatus === "active" ? "📡 Your Live Location" : gpsStatus === "acquiring" ? "🔄 Locating you..." : "⚠️ Enable GPS to see your location"}
+          </div>
+          {driverLatLng && gpsStatus === "active" ? (
+            <div style={{ height: "220px", borderRadius: "16px", overflow: "hidden", border: "1px solid rgba(250,204,21,0.2)" }}>
+              <MapContainer
+                center={driverLatLng}
+                zoom={15}
+                zoomControl={false}
+                style={{ height: "100%", width: "100%" }}
+              >
+                <TileLayer
+                  attribution="&copy; OpenStreetMap contributors"
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                />
+                <RecenterMap position={driverLatLng} />
+                <Marker position={driverLatLng} icon={driverCarIcon}>
+                  <Popup><b>📡 You are here</b></Popup>
+                </Marker>
+              </MapContainer>
+            </div>
+          ) : (
+            <div className="driver-map-placeholder">
+              {gpsStatus === "acquiring" && <div className="gps-acquiring-spinner" />}
+              {gpsStatus === "denied" && <span style={{ fontSize: 32 }}>🚫</span>}
+              <p>{gpsStatus === "acquiring" ? "Waiting for GPS signal..." : "Location access was denied. Enable it in your browser settings."}</p>
+            </div>
+          )}
         </div>
       </div>
 
