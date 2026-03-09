@@ -121,6 +121,13 @@ const AdminDashboard = () => {
             📄 Reports
           </button>
           
+          <button 
+            className={`nav-item ${activeTab === 'bookings' ? 'active' : ''}`}
+            onClick={() => { setActiveTab('bookings'); setSidebarOpen(false); }}
+          >
+            📋 All Bookings
+          </button>
+          
           <button className="nav-item logout-item" onClick={handleLogout}>
             🚪 Logout
           </button>
@@ -204,7 +211,7 @@ const AdminDashboard = () => {
               <div className="view-card">
                 <div className="card-header">
                   <h3>Recent Bookings</h3>
-                  <button className="text-btn" onClick={() => navigate("/admin/trips")}>View All</button>
+                  <button className="text-btn" onClick={() => setActiveTab('bookings')}>View All</button>
                 </div>
                 <div className="table-responsive">
                   <table className="dashboard-table">
@@ -325,6 +332,48 @@ const AdminDashboard = () => {
                  </div>
               </div>
             </div>
+          </div>
+        )}
+
+        {activeTab === 'bookings' && (
+          <div className="view-card animate-in">
+             <div className="card-header">
+               <h3>All Bookings</h3>
+             </div>
+             <div className="table-responsive">
+               <table className="dashboard-table">
+                 <thead>
+                   <tr>
+                     <th>Date & Time</th>
+                     <th>Trip ID</th>
+                     <th>Client Phone</th>
+                     <th>Pickup</th>
+                     <th>Dropoff</th>
+                     <th>Fare</th>
+                     <th>Status</th>
+                   </tr>
+                 </thead>
+                 <tbody>
+                   {[...trips].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).map(t => (
+                     <tr key={t._id}>
+                       <td>
+                         {new Date(t.createdAt).toLocaleDateString()} {new Date(t.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                       </td>
+                       <td className="semi-bold">{t._id.slice(-6).toUpperCase()}</td>
+                       <td>{t.phone}</td>
+                       <td>{t.pickup || 'N/A'}</td>
+                       <td>{t.drop || 'N/A'}</td>
+                       <td className="bold">{formatCurrency(t.fare)}</td>
+                       <td>
+                         <span className={`status-badge status-${t.status}`}>
+                           {t.status}
+                         </span>
+                       </td>
+                     </tr>
+                   ))}
+                 </tbody>
+               </table>
+             </div>
           </div>
         )}
 
