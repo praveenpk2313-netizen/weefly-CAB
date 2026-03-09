@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { api } from "../api";
 import Navbar from "../components/Navbar";
+import RouteMap from "../components/RouteMap";
 import "./Driver.css";
 
 export default function DriverTrip() {
@@ -207,6 +208,15 @@ export default function DriverTrip() {
               </div>
             </div>
           </div>
+
+          {(status === "started" || showPayment || status === "completed") && (
+            <div className="map-section" style={{ margin: "20px 0" }}>
+              <RouteMap 
+                pickupLatLng={trip.pickupLatLng} 
+                dropLatLng={trip.dropLatLng} 
+              />
+            </div>
+          )}
 
           {shouldShowOtpSection && status !== "started" && status !== "completed" && (
             <div className="otp-verification-section">
