@@ -178,6 +178,9 @@ export const updateRideStatus = async (req, res) => {
         .json({ message: "Completed allowed only after started" });
     }
 
+    if (status === "arrived") {
+      booking.driverLatLng = booking.pickupLatLng;
+    }
     booking.status = status;
     await booking.save();
 
@@ -264,9 +267,16 @@ export const updateDriverLocation = async (req, res) => {
       return res.status(400).json({ message: "bookingId, lat and lng are required" });
     }
 
-    await Booking.findByIdAndUpdate(bookingId, {
-      driverLatLng: { lat: parseFloat(lat), lng: parseFloat(lng) },
-    });
+    const booking = await Booking.findById(bookingId);
+    if (!booking) return res.status(404).json({ message: "Booking not found" });
+
+    // If driver marked arrived, don't let GPS jitter move the car marker from pickup
+    if (booking.status === "arrived") {
+      return res.json({ success: true, message: "Ignored: Arrived" });
+    }
+
+    booking.driverLatLng = { lat: parseFloat(lat), lng: parseFloat(lng) };
+    await booking.save();
 
     res.json({ success: true });
   } catch (err) {

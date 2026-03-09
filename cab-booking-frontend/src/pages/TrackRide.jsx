@@ -34,31 +34,33 @@ const carIcon = L.divIcon({
     className: 'car-marker-icon',
 });
 
-// Fit map bounds to show all markers
-function FitBounds({ pickup, drop, driver, status }) {
+// Fit map bounds to show all markers (runs only once)
+function FitBounds({ pickup, drop }) {
     const map = useMap();
     const fitted = useRef(false);
-    
     useEffect(() => {
-        if (!pickup) return;
-        
-        // If driver is approaching, show both driver and pickup
-        if ((status === "accepted" || status === "arrived") && driver) {
-            const bounds = L.latLngBounds([driver, pickup]).pad(0.2);
-            map.fitBounds(bounds, { maxZoom: 15 });
-            return;
-        }
-
-        if (fitted.current) return;
+        if (fitted.current || !pickup) return;
         fitted.current = true;
-        
         if (drop) {
             const bounds = L.latLngBounds([pickup, drop]).pad(0.15);
             map.fitBounds(bounds, { maxZoom: 15 });
         } else {
             map.setView(pickup, 14);
         }
-    }, [pickup, drop, driver, status, map]);
+    }, [pickup, drop, map]);
+    return null;
+}
+
+// Smoothly move map centre to track driver if they are moving
+function RecenterMap({ position, status }) {
+    const map = useMap();
+    useEffect(() => {
+        if (!position) return;
+        // Only auto-recenter if "started" (on the way to drop) or "accepted" (on the way to pickup)
+        if (status === "accepted" || status === "started") {
+            map.panTo(position, { animate: true, duration: 1.0 });
+        }
+    }, [position, status, map]);
     return null;
 }
 
@@ -176,24 +178,14 @@ export default function TrackRide() {
         });
     }, [pickupLL, dropLL]);
 
-    // Derive real driver position from booking data
+    // Derive real driver position from booking data (sent by driver's device every 5s)
     const driverPos = useMemo(() => {
-        // 1. If driver has arrived at pickup, snap to pickup location for perfect visual alignment
-        if ((booking?.status === "arrived") && pickupLL) {
-            return pickupLL;
-        }
+        // ✅ SNAP TO PICKUP if status is 'arrived'
+        if (booking?.status === 'arrived') return pickupLL;
 
-        // 2. Fetch real-time GPS coordinates
         if (!booking?.driverLatLng) return null;
         const d = booking.driverLatLng;
-        const pos = Array.isArray(d) ? d : [d.lat, d.lng];
-        
-        // 3. Validation: Prevent "Ocean" markers (0,0 or null)
-        const lat = parseFloat(pos[0]);
-        const lng = parseFloat(pos[1]);
-        if (isNaN(lat) || isNaN(lng) || (lat === 0 && lng === 0) || Math.abs(lat) < 0.01) return null;
-        
-        return [lat, lng];
+        return Array.isArray(d) ? d : [d.lat, d.lng];
     }, [booking?.driverLatLng, booking?.status, pickupLL]);
 
     // Reset step tracker on status change (kept for prevStatusRef)
@@ -248,17 +240,13 @@ export default function TrackRide() {
                                 zoomControl={false}
                                 style={{ height: '100%', width: '100%', zIndex: 1 }}
                             >
-                                    <TileLayer
-                                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                                    />
-    
-                                    <FitBounds 
-                                        pickup={pickupLL} 
-                                        drop={dropLL} 
-                                        driver={driverPos} 
-                                        status={booking.status} 
-                                    />
+                                <TileLayer
+                                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                />
+
+                                <FitBounds pickup={pickupLL} drop={dropLL} />
+                                <RecenterMap position={driverPos} status={booking.status} />
 
                                 <Marker position={pickupLL}>
                                     <Popup><b>📍 Pickup</b><br />{booking.pickup}</Popup>
@@ -275,7 +263,7 @@ export default function TrackRide() {
                                 )}
 
                                 {driverPos && driverVisible && booking.status !== 'completed' && (
-                                    <Marker position={driverPos} icon={carIcon}>
+                                    <Marker position={driverPos} icon={carIcon} zIndexOffset={1000}>
                                         <Popup><b>🚕 Your Driver</b><br />{booking.driverName || 'Driver'}</Popup>
                                     </Marker>
                                 )}

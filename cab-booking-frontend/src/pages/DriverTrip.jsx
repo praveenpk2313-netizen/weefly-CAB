@@ -53,9 +53,6 @@ export default function DriverTrip() {
     let lastLng = null;
 
     const sendLocation = async (lat, lng) => {
-      // Validation: Prevent 0,0 or null locations
-      if (!lat || !lng || (lat === 0 && lng === 0) || Math.abs(lat) < 0.01) return;
-      
       try {
         await api.post("/booking/update-driver-location", { bookingId: id, lat, lng });
       } catch (e) {
@@ -67,8 +64,8 @@ export default function DriverTrip() {
       (pos) => {
         lastLat = pos.coords.latitude;
         lastLng = pos.coords.longitude;
-        // Optional: trigger immediate send on significant move? 
-        // For now, faster interval is simpler.
+        // Immediate update on first signal or significant move
+        sendLocation(lastLat, lastLng);
       },
       (err) => console.warn("GPS error:", err.message),
       { enableHighAccuracy: true, maximumAge: 3000, timeout: 10000 }
@@ -131,8 +128,6 @@ export default function DriverTrip() {
       await updateStatus("started");
       setShowOtp(false);
       setOtp("");
-      // Immediate location sync on start
-      if (lastLat && lastLng) sendLocation(lastLat, lastLng);
       await fetchTrip();
     } catch (err) {
       setOtpErr(err?.response?.data?.message || "OTP verification failed");
