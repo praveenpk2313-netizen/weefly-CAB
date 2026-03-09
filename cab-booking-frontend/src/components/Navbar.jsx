@@ -82,7 +82,7 @@ export default function Navbar() {
                         )}
 
                         <div className="nav-actions">
-                            {userName && (
+                            {!isHomePage && userName && (
                                 <div className="nav-user-info">
                                     <span className="user-icon">👤</span>
                                     <span className="user-name">{userName || "User"}</span>
