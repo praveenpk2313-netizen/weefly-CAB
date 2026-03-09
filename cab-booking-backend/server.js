@@ -27,7 +27,9 @@ app.use(
   cors({
     origin: (origin, cb) => {
       if (!origin) return cb(null, true); // postman
-      if (ALLOWED_ORIGINS.includes(origin)) return cb(null, true);
+      if (ALLOWED_ORIGINS.includes(origin) || (origin.endsWith('.vercel.app') && !origin.includes('localhost'))) {
+        return cb(null, true);
+      }
       return cb(new Error("Not allowed by CORS"));
     },
     credentials: true,

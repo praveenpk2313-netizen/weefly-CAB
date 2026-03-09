@@ -5,6 +5,7 @@ import User from "../models/User.js";
 // POST /api/auth/signup
 export const signup = async (req, res) => {
   try {
+    console.log("Signup attempt body:", req.body);
     const { username, name, phone, email, password } = req.body;
 
     if (!username || !name || !phone || !email || !password) {
@@ -27,8 +28,8 @@ export const signup = async (req, res) => {
 
     res.status(201).json({ success: true, message: "User registered successfully", user });
   } catch (err) {
-    console.error("Signup error:", err);
-    res.status(500).json({ message: "Signup failed" });
+    console.error("Signup error details:", err);
+    res.status(500).json({ success: false, message: err.message || "Signup failed" });
   }
 };
 
@@ -66,8 +67,8 @@ export const login = async (req, res) => {
       }
     });
   } catch (err) {
-    console.error("Login error:", err);
-    res.status(500).json({ message: "Login failed" });
+    console.error("Login error details:", err);
+    res.status(500).json({ success: false, message: err.message || "Login failed" });
   }
 };
 

@@ -36,7 +36,9 @@ export default function Signup() {
         navigate("/");
       }
     } catch (err) {
-      alert(err?.response?.data?.message || "Signup failed");
+      console.error("Signup error details:", err.response?.data || err);
+      const errorMsg = err?.response?.data?.message || err?.message || "Signup failed";
+      alert(errorMsg);
     } finally {
       setLoading(false);
     }

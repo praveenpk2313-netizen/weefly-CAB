@@ -24,7 +24,7 @@ export const registerAdmin = async (req, res) => {
         res.json({ success: true, message: "Admin registered", admin });
     } catch (err) {
         console.error("Admin Register Error:", err);
-        res.status(500).json({ message: "Server error" });
+        res.status(500).json({ success: false, message: err.message || "Server error" });
     }
 };
 
@@ -76,7 +76,7 @@ export const adminLogin = async (req, res) => {
         });
     } catch (err) {
         console.error("Admin Login Error:", err);
-        res.status(500).json({ message: "Server error" });
+        res.status(500).json({ success: false, message: err.message || "Server error" });
     }
 };
 

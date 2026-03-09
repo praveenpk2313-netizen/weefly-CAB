@@ -3,7 +3,7 @@
 
 /* Any signup-specific styles can go here */
 .login-container {
-    padding-top: 40px; /* Adjust if header is too tall for content */
+    padding-top: 100px; /* Increased to prevent fixed Navbar from hiding top fields */
 }
 
 .glass-card {
