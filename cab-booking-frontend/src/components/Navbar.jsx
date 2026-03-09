@@ -93,7 +93,7 @@ export default function Navbar() {
                                 <span className="bell-icon-nav">🔔</span>
                                 {notifications.length > 0 && <span className="notif-badge">{notifications.length}</span>}
                             </div>
-                            {userName && (
+                            {!isHomePage && userName && (
                                 <button className="nav-logout-btn" onClick={handleLogout}>
                                     <span className="logout-icon">⏻</span>
                                     Logout
