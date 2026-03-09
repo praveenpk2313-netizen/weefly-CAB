@@ -34,20 +34,38 @@ const carIcon = L.divIcon({
     className: 'car-marker-icon',
 });
 
-// Fit map bounds to show all markers (runs only once)
-function FitBounds({ pickup, drop }) {
+// Fit map bounds to show all markers (resets on status change)
+function FitBounds({ pickup, drop, driver, status }) {
     const map = useMap();
-    const fitted = useRef(false);
+    const lastStatus = useRef(status);
+    
     useEffect(() => {
-        if (fitted.current || !pickup) return;
-        fitted.current = true;
-        if (drop) {
-            const bounds = L.latLngBounds([pickup, drop]).pad(0.15);
-            map.fitBounds(bounds, { maxZoom: 15 });
+        if (!pickup) return;
+        
+        // Re-fit if status changes or if first time
+        const statusChanged = lastStatus.current !== status;
+        lastStatus.current = status;
+
+        if (status === "accepted" || status === "arrived") {
+            if (driver && pickup) {
+                const bounds = L.latLngBounds([driver, pickup]).pad(0.2);
+                map.fitBounds(bounds, { maxZoom: 15 });
+            }
+        } else if (status === "started") {
+            if (pickup && drop) {
+                const bounds = L.latLngBounds([pickup, drop]).pad(0.15);
+                map.fitBounds(bounds, { maxZoom: 15 });
+            }
         } else {
-            map.setView(pickup, 14);
+            // Initial view
+            if (drop) {
+                const bounds = L.latLngBounds([pickup, drop]).pad(0.15);
+                map.fitBounds(bounds, { maxZoom: 15 });
+            } else {
+                map.setView(pickup, 14);
+            }
         }
-    }, [pickup, drop, map]);
+    }, [pickup, drop, driver, status, map]);
     return null;
 }
 
@@ -157,13 +175,29 @@ export default function TrackRide() {
         return Array.isArray(d) ? d : [d.lat, d.lng];
     }, [booking?.dropLatLng]);
 
-    // Fetch route between pickup and drop
+    // Fetch dynamic route based on trip stage
     useEffect(() => {
-        if (!pickupLL || !dropLL) return;
-        fetchRoute(pickupLL, dropLL).then(r => {
-            if (r?.line) setRouteLine(r.line);
-        });
-    }, [pickupLL, dropLL]);
+        if (!booking) return;
+        const status = booking.status;
+
+        const getRoute = async () => {
+            if ((status === "accepted" || status === "arrived") && driverPos && pickupLL) {
+                // Stage 1: Driver -> Pickup
+                const r = await fetchRoute(driverPos, pickupLL);
+                if (r?.line) setRouteLine(r.line);
+            } else if (status === "started" && pickupLL && dropLL) {
+                // Stage 2: Pickup -> Drop
+                const r = await fetchRoute(pickupLL, dropLL);
+                if (r?.line) setRouteLine(r.line);
+            } else if (status === "pending" && pickupLL && dropLL) {
+                // Preview: Pickup -> Drop
+                const r = await fetchRoute(pickupLL, dropLL);
+                if (r?.line) setRouteLine(r.line);
+            }
+        };
+
+        getRoute();
+    }, [booking?.status, driverPos, pickupLL, dropLL]);
 
     // Derive real driver position from booking data (sent by driver's device every 5s)
     const driverPos = useMemo(() => {
@@ -227,12 +261,17 @@ export default function TrackRide() {
                                 zoomControl={false}
                                 style={{ height: '100%', width: '100%', zIndex: 1 }}
                             >
-                                <TileLayer
-                                    attribution="&copy; OpenStreetMap contributors"
-                                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                                />
-
-                                <FitBounds pickup={pickupLL} drop={dropLL} />
+                                    <TileLayer
+                                        attribution="&copy; OpenStreetMap contributors"
+                                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                    />
+    
+                                    <FitBounds 
+                                        pickup={pickupLL} 
+                                        drop={dropLL} 
+                                        driver={driverPos} 
+                                        status={booking.status} 
+                                    />
 
                                 {/* Pickup Marker */}
                                 <Marker position={pickupLL}>
