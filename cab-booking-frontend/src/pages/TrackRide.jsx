@@ -34,38 +34,20 @@ const carIcon = L.divIcon({
     className: 'car-marker-icon',
 });
 
-// Fit map bounds to show all markers (resets on status change)
-function FitBounds({ pickup, drop, driver, status }) {
+// Fit map bounds to show all markers (runs only once)
+function FitBounds({ pickup, drop }) {
     const map = useMap();
-    const lastStatus = useRef(status);
-    
+    const fitted = useRef(false);
     useEffect(() => {
-        if (!pickup) return;
-        
-        // Re-fit if status changes or if first time
-        const statusChanged = lastStatus.current !== status;
-        lastStatus.current = status;
-
-        if (status === "accepted" || status === "arrived") {
-            if (driver && pickup) {
-                const bounds = L.latLngBounds([driver, pickup]).pad(0.2);
-                map.fitBounds(bounds, { maxZoom: 15 });
-            }
-        } else if (status === "started") {
-            if (pickup && drop) {
-                const bounds = L.latLngBounds([pickup, drop]).pad(0.15);
-                map.fitBounds(bounds, { maxZoom: 15 });
-            }
+        if (fitted.current || !pickup) return;
+        fitted.current = true;
+        if (drop) {
+            const bounds = L.latLngBounds([pickup, drop]).pad(0.15);
+            map.fitBounds(bounds, { maxZoom: 15 });
         } else {
-            // Initial view
-            if (drop) {
-                const bounds = L.latLngBounds([pickup, drop]).pad(0.15);
-                map.fitBounds(bounds, { maxZoom: 15 });
-            } else {
-                map.setView(pickup, 14);
-            }
+            map.setView(pickup, 14);
         }
-    }, [pickup, drop, driver, status, map]);
+    }, [pickup, drop, map]);
     return null;
 }
 
@@ -175,29 +157,13 @@ export default function TrackRide() {
         return Array.isArray(d) ? d : [d.lat, d.lng];
     }, [booking?.dropLatLng]);
 
-    // Fetch dynamic route based on trip stage
+    // Fetch route between pickup and drop
     useEffect(() => {
-        if (!booking) return;
-        const status = booking.status;
-
-        const getRoute = async () => {
-            if ((status === "accepted" || status === "arrived") && driverPos && pickupLL) {
-                // Stage 1: Driver -> Pickup
-                const r = await fetchRoute(driverPos, pickupLL);
-                if (r?.line) setRouteLine(r.line);
-            } else if (status === "started" && pickupLL && dropLL) {
-                // Stage 2: Pickup -> Drop
-                const r = await fetchRoute(pickupLL, dropLL);
-                if (r?.line) setRouteLine(r.line);
-            } else if (status === "pending" && pickupLL && dropLL) {
-                // Preview: Pickup -> Drop
-                const r = await fetchRoute(pickupLL, dropLL);
-                if (r?.line) setRouteLine(r.line);
-            }
-        };
-
-        getRoute();
-    }, [booking?.status, driverPos, pickupLL, dropLL]);
+        if (!pickupLL || !dropLL) return;
+        fetchRoute(pickupLL, dropLL).then(r => {
+            if (r?.line) setRouteLine(r.line);
+        });
+    }, [pickupLL, dropLL]);
 
     // Derive real driver position from booking data (sent by driver's device every 5s)
     const driverPos = useMemo(() => {
@@ -230,7 +196,7 @@ export default function TrackRide() {
             <div className="track-wrap">
                 <div className="track-loading">
                     <p style={{ color: "#f87171" }}>Booking not found.</p>
-                    <button className="back-btn" onClick={() => nav("/book")}>🚕 Book Again</button>
+                    <button className="back-btn" onClick={() => nav("/book")}>Back to Booking</button>
                 </div>
             </div>
         );
@@ -241,7 +207,6 @@ export default function TrackRide() {
 
     return (
         <div className="track-wrap">
-            {/* Header */}
             <div className="track-header">
                 <button className="back-btn" onClick={() => nav(-1)}>🚕 Back</button>
                 <h2 className="track-title">🛰 Track Your Ride</h2>
@@ -249,8 +214,6 @@ export default function TrackRide() {
             </div>
 
             <div className="track-content">
-
-                {/* Live Map */}
                 {pickupLL && (
                     <div className="track-card map-card" style={{ padding: 0, overflow: 'hidden' }}>
                         <div className="card-label" style={{ padding: '16px 20px 0' }}>Live Map</div>
@@ -261,36 +224,27 @@ export default function TrackRide() {
                                 zoomControl={false}
                                 style={{ height: '100%', width: '100%', zIndex: 1 }}
                             >
-                                    <TileLayer
-                                        attribution="&copy; OpenStreetMap contributors"
-                                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                                    />
-    
-                                    <FitBounds 
-                                        pickup={pickupLL} 
-                                        drop={dropLL} 
-                                        driver={driverPos} 
-                                        status={booking.status} 
-                                    />
+                                <TileLayer
+                                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                />
 
-                                {/* Pickup Marker */}
+                                <FitBounds pickup={pickupLL} drop={dropLL} />
+
                                 <Marker position={pickupLL}>
                                     <Popup><b>📍 Pickup</b><br />{booking.pickup}</Popup>
                                 </Marker>
 
-                                {/* Drop Marker */}
                                 {dropLL && (
                                     <Marker position={dropLL}>
                                         <Popup><b>🏁 Drop</b><br />{booking.drop}</Popup>
                                     </Marker>
                                 )}
 
-                                {/* Route Line */}
                                 {routeLine && routeLine.length > 0 && (
                                     <Polyline positions={routeLine} pathOptions={{ color: '#facc15', weight: 5, opacity: 0.85 }} />
                                 )}
 
-                                {/* Driver Car Icon */}
                                 {driverPos && driverVisible && booking.status !== 'completed' && (
                                     <Marker position={driverPos} icon={carIcon}>
                                         <Popup><b>🚕 Your Driver</b><br />{booking.driverName || 'Driver'}</Popup>
@@ -301,7 +255,6 @@ export default function TrackRide() {
                     </div>
                 )}
 
-                {/* Booking Details Card */}
                 <div className="track-card booking-card">
                     <div className="card-label">Booking Details</div>
 
@@ -378,7 +331,6 @@ export default function TrackRide() {
                     </div>
                 </div>
 
-                {/* Waiting Animation - only when pending */}
                 {booking.status === "pending" && (
                     <div className="track-card waiting-card">
                         <div className="pulse-rings">
@@ -392,7 +344,6 @@ export default function TrackRide() {
                     </div>
                 )}
 
-                {/* Driver Details Card - visible after driver accepts */}
                 {driverVisible && booking.driverId && (
                     <div className="track-card driver-card slide-in">
                         <div className="card-label">Driver Details</div>
@@ -437,7 +388,6 @@ export default function TrackRide() {
                     </div>
                 )}
 
-                {/* Completed card */}
                 {booking.status === "completed" && (
                     <div className="track-card completed-card">
                         <div className="completed-icon">🎉</div>
@@ -465,7 +415,6 @@ export default function TrackRide() {
                     driverName={booking?.driverName || "your driver"}
                     onRatingSubmit={handleRatingSubmit}
                 />
-
             </div>
         </div>
     );
