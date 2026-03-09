@@ -83,39 +83,74 @@ export default function Driver() {
     fetchUser();
   }, [nav]);
 
-  // Auto-start GPS tracking on mount
-  useEffect(() => {
+  const startTracking = () => {
     if (!navigator.geolocation) {
       setGpsStatus("denied");
       return;
     }
 
-    let watchId = null;
+    setGpsStatus("acquiring");
 
+    // Clear existing watch if any
+    if (gpsWatchRef.current !== null) {
+      navigator.geolocation.clearWatch(gpsWatchRef.current);
+    }
+
+    // Try to get current position once
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         setDriverLatLng([pos.coords.latitude, pos.coords.longitude]);
         setGpsStatus("active");
       },
-      () => setGpsStatus("denied"),
-      { enableHighAccuracy: true }
+      (err) => {
+        console.error("GPS Error:", err);
+        setGpsStatus("denied");
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
     );
 
-    // Continuously watch position
-    watchId = navigator.geolocation.watchPosition(
+    // Set up continuous watch
+    const watchId = navigator.geolocation.watchPosition(
       (pos) => {
         setDriverLatLng([pos.coords.latitude, pos.coords.longitude]);
         setGpsStatus("active");
       },
-      () => setGpsStatus("denied"),
+      (err) => {
+        console.error("GPS Watch Error:", err);
+        if (err.code === 1) setGpsStatus("denied"); // Permission denied
+      },
       { enableHighAccuracy: true, maximumAge: 5000, timeout: 15000 }
     );
     gpsWatchRef.current = watchId;
+  };
+
+  // Auto-start GPS tracking on mount and when driver is set
+  useEffect(() => {
+    if (driver) {
+      // Check permissions first if available
+      if (navigator.permissions && navigator.permissions.query) {
+        navigator.permissions.query({ name: 'geolocation' }).then((result) => {
+          if (result.state === 'granted' || result.state === 'prompt') {
+            startTracking();
+          } else {
+            setGpsStatus("denied");
+          }
+          result.onchange = () => {
+            if (result.state === 'granted') startTracking();
+            else if (result.state === 'denied') setGpsStatus("denied");
+          };
+        });
+      } else {
+        startTracking();
+      }
+    }
 
     return () => {
-      if (watchId !== null) navigator.geolocation.clearWatch(watchId);
+      if (gpsWatchRef.current !== null) {
+        navigator.geolocation.clearWatch(gpsWatchRef.current);
+      }
     };
-  }, []);
+  }, [driver]);
 
   const DRIVER_ID = driver?.id || driver?._id || "DRIVER-001";
 
@@ -282,9 +317,28 @@ export default function Driver() {
             </div>
           ) : (
             <div className="driver-map-placeholder">
-              {gpsStatus === "acquiring" && <div className="gps-acquiring-spinner" />}
-              {gpsStatus === "denied" && <span style={{ fontSize: 32 }}>🚫</span>}
-              <p>{gpsStatus === "acquiring" ? "Waiting for GPS signal..." : "Location access was denied. Enable it in your browser settings."}</p>
+              {gpsStatus === "acquiring" && (
+                <>
+                  <div className="gps-acquiring-spinner" />
+                  <p>Requesting location permission...</p>
+                </>
+              )}
+              {gpsStatus === "denied" && (
+                <>
+                  <span style={{ fontSize: 32 }}>📍</span>
+                  <p>Location access is required for live tracking.</p>
+                  <button 
+                    className="premium-secondary-btn" 
+                    onClick={startTracking}
+                    style={{ marginTop: '10px' }}
+                  >
+                    Enable GPS
+                  </button>
+                  <p style={{ fontSize: '11px', marginTop: '5px', opacity: 0.7 }}>
+                    If no prompt appears, please check your browser settings.
+                  </p>
+                </>
+              )}
             </div>
           )}
         </div>
