@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { api } from "../api";
 import Navbar from "../components/Navbar";
@@ -19,6 +19,8 @@ export default function DriverTrip() {
   const [otpErr, setOtpErr] = useState("");
   const [showPayment, setShowPayment] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState(""); // "cash" or "qr"
+  const gpsWatchRef = useRef(null);
+  const locationIntervalRef = useRef(null);
 
   const fetchTrip = async () => {
     try {
@@ -32,6 +34,44 @@ export default function DriverTrip() {
       setLoading(false);
     }
   };
+
+  // ✅ Real-time GPS tracking — sends driver location to backend every 5s
+  useEffect(() => {
+    if (!id) return;
+    if (!navigator.geolocation) return;
+
+    let lastLat = null;
+    let lastLng = null;
+
+    const sendLocation = async (lat, lng) => {
+      try {
+        await api.post("/booking/update-driver-location", { bookingId: id, lat, lng });
+      } catch (e) {
+        // silent fail — don't interrupt trip for location errors
+      }
+    };
+
+    gpsWatchRef.current = navigator.geolocation.watchPosition(
+      (pos) => {
+        lastLat = pos.coords.latitude;
+        lastLng = pos.coords.longitude;
+      },
+      (err) => console.warn("GPS error:", err.message),
+      { enableHighAccuracy: true, maximumAge: 5000, timeout: 10000 }
+    );
+
+    // Send to backend every 5 seconds
+    locationIntervalRef.current = setInterval(() => {
+      if (lastLat !== null && lastLng !== null) {
+        sendLocation(lastLat, lastLng);
+      }
+    }, 5000);
+
+    return () => {
+      if (gpsWatchRef.current !== null) navigator.geolocation.clearWatch(gpsWatchRef.current);
+      if (locationIntervalRef.current) clearInterval(locationIntervalRef.current);
+    };
+  }, [id]);
 
   const updateStatus = async (status) => {
     await api.post("/booking/update-status", {

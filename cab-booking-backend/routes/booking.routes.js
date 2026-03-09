@@ -10,6 +10,7 @@ import {
   getBookingsByPhone,
   completeRideAndPay,
   submitFeedback,
+  updateDriverLocation,
 } from "../controllers/booking.controller.js";
 
 const router = express.Router();
@@ -26,6 +27,7 @@ router.post("/update-status", updateRideStatus);
 router.post("/verify-start-otp", verifyStartOtp);
 router.get("/driver-active/:driverId", getDriverActiveTrip);
 router.post("/complete-and-pay", completeRideAndPay);
+router.post("/update-driver-location", updateDriverLocation); // ✅ live GPS
 
 // trip detail page
 router.get("/:id", getSingleBooking);

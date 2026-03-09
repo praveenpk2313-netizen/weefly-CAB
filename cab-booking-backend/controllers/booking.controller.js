@@ -254,3 +254,23 @@ export const submitFeedback = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+// ✅ Update driver's live GPS location
+export const updateDriverLocation = async (req, res) => {
+  try {
+    const { bookingId, lat, lng } = req.body;
+
+    if (!bookingId || lat == null || lng == null) {
+      return res.status(400).json({ message: "bookingId, lat and lng are required" });
+    }
+
+    await Booking.findByIdAndUpdate(bookingId, {
+      driverLatLng: { lat: parseFloat(lat), lng: parseFloat(lng) },
+    });
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error("Driver location update error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};

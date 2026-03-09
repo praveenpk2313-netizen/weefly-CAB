@@ -97,8 +97,6 @@ export default function TrackRide() {
     const [showRatingModal, setShowRatingModal] = useState(false);
     const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
     const [routeLine, setRouteLine] = useState(null);
-    const [driverPos, setDriverPos] = useState(null);
-    const [driverStep, setDriverStep] = useState(0);
     const prevStatusRef = useRef(null);
 
     const fetchBooking = async () => {
@@ -167,43 +165,16 @@ export default function TrackRide() {
         });
     }, [pickupLL, dropLL]);
 
-    // Simulate driver moving along route when ride is active
-    useEffect(() => {
-        if (!booking || !pickupLL) return;
-        const status = booking.status;
+    // Derive real driver position from booking data (sent by driver's device every 5s)
+    const driverPos = useMemo(() => {
+        if (!booking?.driverLatLng) return null;
+        const d = booking.driverLatLng;
+        return Array.isArray(d) ? d : [d.lat, d.lng];
+    }, [booking?.driverLatLng]);
 
-        if (status === "accepted" || status === "arrived") {
-            // Driver is approaching pickup — simulate near pickup
-            const offset = 0.008 - (driverStep * 0.001);
-            setDriverPos([pickupLL[0] + Math.max(offset, 0.0005), pickupLL[1] - Math.max(offset, 0.0005)]);
-        } else if (status === "started" && routeLine?.length > 0) {
-            // Driver moving along route
-            const idx = Math.min(driverStep, routeLine.length - 1);
-            setDriverPos(routeLine[idx]);
-        } else if (status === "completed" && dropLL) {
-            setDriverPos(dropLL);
-        }
-    }, [booking?.status, driverStep, pickupLL, dropLL, routeLine]);
-
-    // Animate driver step
+    // Reset step tracker on status change (kept for prevStatusRef)
     useEffect(() => {
         if (!booking) return;
-        const status = booking.status;
-        if (status === "accepted" || status === "arrived" || status === "started") {
-            const maxSteps = status === "started" ? (routeLine?.length || 20) : 8;
-            const t = setInterval(() => {
-                setDriverStep(prev => (prev < maxSteps - 1 ? prev + 1 : prev));
-            }, 2500);
-            return () => clearInterval(t);
-        }
-    }, [booking?.status, routeLine]);
-
-    // Reset driver step only when status actually changes
-    useEffect(() => {
-        if (!booking) return;
-        if (prevStatusRef.current && prevStatusRef.current !== booking.status) {
-            setDriverStep(0);
-        }
         prevStatusRef.current = booking.status;
     }, [booking?.status]);
 

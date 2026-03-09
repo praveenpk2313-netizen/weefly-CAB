@@ -27,6 +27,7 @@ const bookingSchema = new mongoose.Schema(
 
     pickupLatLng: { type: Object, default: null },
     dropLatLng: { type: Object, default: null },
+    driverLatLng: { type: Object, default: null }, // ✅ driver's live GPS location
 
     // ✅ Feedback
     rating: { type: Number, default: 0 },
