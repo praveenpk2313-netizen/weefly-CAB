@@ -53,6 +53,9 @@ export default function DriverTrip() {
     let lastLng = null;
 
     const sendLocation = async (lat, lng) => {
+      // Validation: Prevent 0,0 or null locations
+      if (!lat || !lng || (lat === 0 && lng === 0) || Math.abs(lat) < 0.01) return;
+      
       try {
         await api.post("/booking/update-driver-location", { bookingId: id, lat, lng });
       } catch (e) {
@@ -128,6 +131,8 @@ export default function DriverTrip() {
       await updateStatus("started");
       setShowOtp(false);
       setOtp("");
+      // Immediate location sync on start
+      if (lastLat && lastLng) sendLocation(lastLat, lastLng);
       await fetchTrip();
     } catch (err) {
       setOtpErr(err?.response?.data?.message || "OTP verification failed");

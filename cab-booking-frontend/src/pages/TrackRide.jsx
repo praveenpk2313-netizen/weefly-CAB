@@ -34,20 +34,31 @@ const carIcon = L.divIcon({
     className: 'car-marker-icon',
 });
 
-// Fit map bounds to show all markers (runs only once)
-function FitBounds({ pickup, drop }) {
+// Fit map bounds to show all markers
+function FitBounds({ pickup, drop, driver, status }) {
     const map = useMap();
     const fitted = useRef(false);
+    
     useEffect(() => {
-        if (fitted.current || !pickup) return;
+        if (!pickup) return;
+        
+        // If driver is approaching, show both driver and pickup
+        if ((status === "accepted" || status === "arrived") && driver) {
+            const bounds = L.latLngBounds([driver, pickup]).pad(0.2);
+            map.fitBounds(bounds, { maxZoom: 15 });
+            return;
+        }
+
+        if (fitted.current) return;
         fitted.current = true;
+        
         if (drop) {
             const bounds = L.latLngBounds([pickup, drop]).pad(0.15);
             map.fitBounds(bounds, { maxZoom: 15 });
         } else {
             map.setView(pickup, 14);
         }
-    }, [pickup, drop, map]);
+    }, [pickup, drop, driver, status, map]);
     return null;
 }
 
@@ -165,12 +176,25 @@ export default function TrackRide() {
         });
     }, [pickupLL, dropLL]);
 
-    // Derive real driver position from booking data (sent by driver's device every 5s)
+    // Derive real driver position from booking data
     const driverPos = useMemo(() => {
+        // 1. If driver has arrived at pickup, snap to pickup location for perfect visual alignment
+        if ((booking?.status === "arrived") && pickupLL) {
+            return pickupLL;
+        }
+
+        // 2. Fetch real-time GPS coordinates
         if (!booking?.driverLatLng) return null;
         const d = booking.driverLatLng;
-        return Array.isArray(d) ? d : [d.lat, d.lng];
-    }, [booking?.driverLatLng]);
+        const pos = Array.isArray(d) ? d : [d.lat, d.lng];
+        
+        // 3. Validation: Prevent "Ocean" markers (0,0 or null)
+        const lat = parseFloat(pos[0]);
+        const lng = parseFloat(pos[1]);
+        if (isNaN(lat) || isNaN(lng) || (lat === 0 && lng === 0) || Math.abs(lat) < 0.01) return null;
+        
+        return [lat, lng];
+    }, [booking?.driverLatLng, booking?.status, pickupLL]);
 
     // Reset step tracker on status change (kept for prevStatusRef)
     useEffect(() => {
@@ -224,12 +248,17 @@ export default function TrackRide() {
                                 zoomControl={false}
                                 style={{ height: '100%', width: '100%', zIndex: 1 }}
                             >
-                                <TileLayer
-                                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                                />
-
-                                <FitBounds pickup={pickupLL} drop={dropLL} />
+                                    <TileLayer
+                                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                    />
+    
+                                    <FitBounds 
+                                        pickup={pickupLL} 
+                                        drop={dropLL} 
+                                        driver={driverPos} 
+                                        status={booking.status} 
+                                    />
 
                                 <Marker position={pickupLL}>
                                     <Popup><b>📍 Pickup</b><br />{booking.pickup}</Popup>

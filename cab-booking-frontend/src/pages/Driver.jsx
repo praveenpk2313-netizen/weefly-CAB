@@ -122,11 +122,16 @@ export default function Driver() {
     if (!activeTrip?._id || !driverLatLng) return;
 
     const sync = async () => {
+      // Validation: Prevent 0,0 or null locations
+      const lat = driverLatLng[0];
+      const lng = driverLatLng[1];
+      if (!lat || !lng || (lat === 0 && lng === 0) || Math.abs(lat) < 0.01) return;
+
       try {
         await api.post("/booking/update-driver-location", {
           bookingId: activeTrip._id,
-          lat: driverLatLng[0],
-          lng: driverLatLng[1]
+          lat: lat,
+          lng: lng
         });
       } catch (e) {
         // Silent fail
