@@ -80,6 +80,7 @@ const AdminDashboard = () => {
           </div>
           <nav>
             <button className={activeTab === 'overview' ? 'active' : ''} onClick={() => { setActiveTab('overview'); setSidebarVisible(false); }}>📊 Dashboard</button>
+            <button className={activeTab === 'recent' ? 'active' : ''} onClick={() => { setActiveTab('recent'); setSidebarVisible(false); }}>🕒 Recent Bookings</button>
             <button className={activeTab === 'categories' ? 'active' : ''} onClick={() => { setActiveTab('categories'); setSidebarVisible(false); }}>📁 Manage Category</button>
             <button className={activeTab === 'drivers' ? 'active' : ''} onClick={() => { setActiveTab('drivers'); setSidebarVisible(false); }}>🚖 Cab Management</button>
             <button className={activeTab === 'trips' ? 'active' : ''} onClick={() => { setActiveTab('trips'); setSidebarVisible(false); }}>📄 View Bookings</button>
@@ -179,46 +180,60 @@ const AdminDashboard = () => {
                           <p>{stats?.systemUsers || 0}</p>
                         </div>
                     </div>
-                  </div>
 
-                  <div className="booking-list-section">
-                    <div className="section-header-row">
-                      <h3>Recent Bookings</h3>
-                    </div>
-                    <div className="glass-card table-container">
-                      <table className="admin-table modern-table">
-                        <thead>
-                          <tr>
-                            <th>#</th>
-                            <th>Date Booked</th>
-                            <th>Ref. Code</th>
-                            <th>Cab</th>
-                            <th>Client</th>
-                            <th>Status</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {stats?.recentTrips?.length === 0 && (
-                            <tr><td colSpan="6" className="muted">No recent bookings</td></tr>
-                          )}
-                          {stats?.recentTrips?.map((t, idx) => (
-                            <tr key={t._id}>
-                              <td>{idx + 1}</td>
-                              <td>{new Date(t.createdAt).toLocaleString('en-IN', { dateStyle: 'short', timeStyle: 'short' })}</td>
-                              <td>{t._id.slice(-8).toUpperCase()}</td>
-                              <td>{t.cabType}</td>
-                              <td>{t.phone}</td>
-                              <td>
-                                <button className="action-btn-view" onClick={() => setSelectedItem({ type: 'booking', data: t })}>View</button>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                    {/* Recent Bookings Slot/Trigger */}
+                    <div className="stat-card-mini card-indigo clickable-card" onClick={() => setActiveTab('recent')}>
+                      <div className="card-mini-icon">🕒</div>
+                      <div className="card-mini-info">
+                         <h3>Recent Bookings</h3>
+                         <p>View Activity</p>
+                      </div>
                     </div>
                   </div>
                 </>
               )}
+            </div>
+          )}
+
+          {/* RECENT BOOKINGS TAB */}
+          {activeTab === 'recent' && (
+            <div className="admin-view animate-fade-in">
+              <div className="section-header-row">
+                <h2 className="view-inner-title">🕒 Recent Activity History</h2>
+              </div>
+              <div className="glass-card table-container">
+                <table className="admin-table modern-table">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Date Booked</th>
+                      <th>Ref. Code</th>
+                      <th>Cab</th>
+                      <th>Client</th>
+                      <th>Status</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {stats?.recentTrips?.length === 0 && (
+                      <tr><td colSpan="7" className="muted">No recent bookings recorded</td></tr>
+                    )}
+                    {stats?.recentTrips?.map((t, idx) => (
+                      <tr key={t._id}>
+                        <td>{idx + 1}</td>
+                        <td>{new Date(t.createdAt).toLocaleString('en-IN', { dateStyle: 'short', timeStyle: 'short' })}</td>
+                        <td>{t._id.slice(-8).toUpperCase()}</td>
+                        <td>{t.cabType}</td>
+                        <td>{t.phone}</td>
+                        <td><span className={`badge-pill status-${t.status}`} style={{fontSize: '11px'}}>{t.status}</span></td>
+                        <td>
+                          <button className="action-btn-view" onClick={() => setSelectedItem({ type: 'booking', data: t })}>View</button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
 
