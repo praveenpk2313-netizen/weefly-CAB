@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { api } from "../api";
+import RatingModal from "../components/RatingModal";
 import "./TrackRide.css";
 
 const STATUS_STEPS = ["pending", "accepted", "arrived", "started", "completed"];
@@ -29,6 +30,8 @@ export default function TrackRide() {
     const [booking, setBooking] = useState(null);
     const [loading, setLoading] = useState(true);
     const [driverVisible, setDriverVisible] = useState(false);
+    const [showRatingModal, setShowRatingModal] = useState(false);
+    const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
 
     const fetchBooking = async () => {
         try {
@@ -38,10 +41,34 @@ export default function TrackRide() {
             if (data.status !== "pending" && data.status !== "cancelled") {
                 setDriverVisible(true);
             }
+            if (data.status === "completed" && data.rating === 0 && !feedbackSubmitted) {
+                setShowRatingModal(true);
+            } else if (data.rating > 0) {
+                setFeedbackSubmitted(true);
+            }
         } catch (err) {
             console.error("Track fetch error:", err);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleRatingSubmit = async ({ rating, comment }) => {
+        try {
+            const res = await api.post("/booking/feedback", {
+                bookingId: id,
+                rating,
+                feedback: comment
+            });
+            if (res.data.success) {
+                setFeedbackSubmitted(true);
+                setShowRatingModal(false);
+                alert("Thank you for your feedback!");
+                fetchBooking();
+            }
+        } catch (err) {
+            console.error("Feedback submit error:", err);
+            alert("Failed to submit feedback. Please try again.");
         }
     };
 
@@ -230,9 +257,27 @@ export default function TrackRide() {
                         <div className="completed-text">Trip Completed!</div>
                         <div className="completed-sub">Thank you for riding with us</div>
                         <div className="completed-fare">Total Paid: <strong>₹{booking.fare}</strong></div>
+                        
+                        {feedbackSubmitted ? (
+                            <div className="feedback-done-msg">
+                                <span className="check-icon">✅</span> Feedback Received
+                            </div>
+                        ) : (
+                            <button className="book-again-btn feedback-trigger" onClick={() => setShowRatingModal(true)}>
+                                Rate Your Trip
+                            </button>
+                        )}
+                        
                         <button className="book-again-btn" onClick={() => nav("/book")}>Book Another Ride</button>
                     </div>
                 )}
+
+                <RatingModal
+                    isOpen={showRatingModal}
+                    onClose={() => setShowRatingModal(false)}
+                    driverName={booking?.driverName || "your driver"}
+                    onRatingSubmit={handleRatingSubmit}
+                />
 
             </div>
         </div>

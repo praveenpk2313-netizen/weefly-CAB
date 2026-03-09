@@ -27,6 +27,10 @@ const bookingSchema = new mongoose.Schema(
 
     pickupLatLng: { type: Object, default: null },
     dropLatLng: { type: Object, default: null },
+
+    // ✅ Feedback
+    rating: { type: Number, default: 0 },
+    feedback: { type: String, default: "" },
   },
   { timestamps: true }
 );

@@ -9,6 +9,7 @@ import {
   getDriverActiveTrip,
   getBookingsByPhone,
   completeRideAndPay,
+  submitFeedback,
 } from "../controllers/booking.controller.js";
 
 const router = express.Router();
@@ -16,6 +17,7 @@ const router = express.Router();
 // customer
 router.post("/create", createBooking);
 router.get("/history/:phone", getBookingsByPhone);
+router.post("/feedback", submitFeedback);
 
 // driver
 router.get("/available", getAvailableBookings);

@@ -231,3 +231,26 @@ export const completeRideAndPay = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+// ✅ Submit feedback
+export const submitFeedback = async (req, res) => {
+  try {
+    const { bookingId, rating, feedback } = req.body;
+
+    if (!bookingId || !rating) {
+      return res.status(400).json({ message: "Booking ID and rating are required" });
+    }
+
+    const booking = await Booking.findById(bookingId);
+    if (!booking) return res.status(404).json({ message: "Booking not found" });
+
+    booking.rating = rating;
+    booking.feedback = feedback || "";
+    await booking.save();
+
+    res.json({ success: true, message: "Feedback submitted successfully!", booking });
+  } catch (err) {
+    console.error("Feedback error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
