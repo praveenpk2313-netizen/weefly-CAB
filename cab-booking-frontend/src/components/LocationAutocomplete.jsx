@@ -48,17 +48,31 @@ const LocationAutocomplete = ({ placeholder, value, onChange, onSelect }) => {
         setLoading(true);
         setError("");
         try {
-            const url = `${API_URL}/location/search?q=${encodeURIComponent(query)}`;
-            const response = await fetch(url);
+            let data = null;
 
-            if (!response.ok) {
-                throw new Error(`Server error: ${response.status}`);
+            // Try backend proxy first
+            try {
+                const url = `${API_URL}/location/search?q=${encodeURIComponent(query)}`;
+                const response = await fetch(url);
+                if (response.ok) {
+                    const json = await response.json();
+                    if (Array.isArray(json) && !json.error) {
+                        data = json;
+                    }
+                }
+            } catch (proxyErr) {
+                console.warn('Backend proxy failed, falling back to Nominatim directly:', proxyErr.message);
             }
 
-            const data = await response.json();
-
-            if (data.error) {
-                throw new Error(data.error);
+            // Fallback: call Nominatim directly from the browser
+            if (!data) {
+                const nominatimUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=10&countrycodes=in&addressdetails=1`;
+                const nomRes = await fetch(nominatimUrl);
+                if (nomRes.ok) {
+                    data = await nomRes.json();
+                } else {
+                    throw new Error(`Nominatim error: ${nomRes.status}`);
+                }
             }
 
             const results = Array.isArray(data) ? data : [];
