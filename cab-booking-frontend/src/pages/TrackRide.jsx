@@ -1,8 +1,64 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { api } from "../api";
+import {
+    MapContainer,
+    TileLayer,
+    Marker,
+    Popup,
+    Polyline,
+    useMap,
+} from "react-leaflet";
+import L from "leaflet";
+import polyline from "@mapbox/polyline";
 import RatingModal from "../components/RatingModal";
 import "./TrackRide.css";
+
+import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
+import markerIcon from "leaflet/dist/images/marker-icon.png";
+import markerShadow from "leaflet/dist/images/marker-shadow.png";
+
+// Fix default Leaflet icons
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+    iconRetinaUrl: markerIcon2x,
+    iconUrl: markerIcon,
+    shadowUrl: markerShadow,
+});
+
+// Custom car icon for the driver
+const carIcon = L.divIcon({
+    html: '<div style="font-size:28px;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.5));">🚕</div>',
+    iconSize: [32, 32],
+    iconAnchor: [16, 16],
+    className: 'car-marker-icon',
+});
+
+// Helper to fly to a position
+function FlyTo({ position, zoom }) {
+    const map = useMap();
+    useEffect(() => {
+        if (position) map.flyTo(position, zoom, { duration: 1.0 });
+    }, [position, zoom, map]);
+    return null;
+}
+
+// Fetch OSRM route
+async function fetchRoute(pick, drop) {
+    const [plat, plng] = pick;
+    const [dlat, dlng] = drop;
+    const url = `https://router.project-osrm.org/route/v1/driving/${plng},${plat};${dlng},${dlat}?overview=full&geometries=polyline`;
+    try {
+        const res = await fetch(url);
+        const json = await res.json();
+        if (json.code !== "Ok" || !json.routes?.[0]) return null;
+        const r = json.routes[0];
+        const coords = polyline.decode(r.geometry).map(([lat, lng]) => [lat, lng]);
+        return { line: coords };
+    } catch {
+        return null;
+    }
+}
 
 const STATUS_STEPS = ["pending", "accepted", "arrived", "started", "completed"];
 
@@ -32,6 +88,9 @@ export default function TrackRide() {
     const [driverVisible, setDriverVisible] = useState(false);
     const [showRatingModal, setShowRatingModal] = useState(false);
     const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
+    const [routeLine, setRouteLine] = useState(null);
+    const [driverPos, setDriverPos] = useState(null);
+    const [driverStep, setDriverStep] = useState(0);
 
     const fetchBooking = async () => {
         try {
@@ -78,6 +137,65 @@ export default function TrackRide() {
         return () => clearInterval(interval);
     }, [id]);
 
+    // Normalize lat/lng from booking (could be object {lat, lng} or array)
+    const pickupLL = useMemo(() => {
+        if (!booking?.pickupLatLng) return null;
+        const p = booking.pickupLatLng;
+        return Array.isArray(p) ? p : [p.lat, p.lng];
+    }, [booking?.pickupLatLng]);
+
+    const dropLL = useMemo(() => {
+        if (!booking?.dropLatLng) return null;
+        const d = booking.dropLatLng;
+        return Array.isArray(d) ? d : [d.lat, d.lng];
+    }, [booking?.dropLatLng]);
+
+    // Fetch route between pickup and drop
+    useEffect(() => {
+        if (!pickupLL || !dropLL) return;
+        fetchRoute(pickupLL, dropLL).then(r => {
+            if (r?.line) setRouteLine(r.line);
+        });
+    }, [pickupLL, dropLL]);
+
+    // Simulate driver moving along route when ride is active
+    useEffect(() => {
+        if (!booking || !pickupLL) return;
+        const status = booking.status;
+
+        if (status === "accepted" || status === "arrived") {
+            // Driver is approaching pickup — simulate near pickup
+            const offset = 0.008 - (driverStep * 0.001);
+            setDriverPos([pickupLL[0] + Math.max(offset, 0.0005), pickupLL[1] - Math.max(offset, 0.0005)]);
+        } else if (status === "started" && routeLine?.length > 0) {
+            // Driver moving along route
+            const idx = Math.min(driverStep, routeLine.length - 1);
+            setDriverPos(routeLine[idx]);
+        } else if (status === "completed" && dropLL) {
+            setDriverPos(dropLL);
+        }
+    }, [booking?.status, driverStep, pickupLL, dropLL, routeLine]);
+
+    // Animate driver step
+    useEffect(() => {
+        if (!booking) return;
+        const status = booking.status;
+        if (status === "accepted" || status === "arrived" || status === "started") {
+            const maxSteps = status === "started" ? (routeLine?.length || 20) : 8;
+            const t = setInterval(() => {
+                setDriverStep(prev => (prev < maxSteps - 1 ? prev + 1 : prev));
+            }, 2000);
+            return () => clearInterval(t);
+        }
+    }, [booking?.status, routeLine]);
+
+    // Reset driver step when status changes
+    useEffect(() => {
+        setDriverStep(0);
+    }, [booking?.status]);
+
+    const mapCenter = pickupLL || [13.0827, 80.2707];
+
     if (loading) {
         return (
             <div className="track-wrap">
@@ -113,6 +231,52 @@ export default function TrackRide() {
             </div>
 
             <div className="track-content">
+
+                {/* Live Map */}
+                {pickupLL && (
+                    <div className="track-card map-card" style={{ padding: 0, overflow: 'hidden' }}>
+                        <div className="card-label" style={{ padding: '16px 20px 0' }}>Live Map</div>
+                        <div style={{ height: '280px', borderRadius: '0 0 20px 20px', overflow: 'hidden' }}>
+                            <MapContainer
+                                center={mapCenter}
+                                zoom={13}
+                                zoomControl={false}
+                                style={{ height: '100%', width: '100%', zIndex: 1 }}
+                            >
+                                <TileLayer
+                                    attribution="&copy; OpenStreetMap contributors"
+                                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                />
+
+                                <FlyTo position={driverPos || mapCenter} zoom={14} />
+
+                                {/* Pickup Marker */}
+                                <Marker position={pickupLL}>
+                                    <Popup><b>📍 Pickup</b><br />{booking.pickup}</Popup>
+                                </Marker>
+
+                                {/* Drop Marker */}
+                                {dropLL && (
+                                    <Marker position={dropLL}>
+                                        <Popup><b>🏁 Drop</b><br />{booking.drop}</Popup>
+                                    </Marker>
+                                )}
+
+                                {/* Route Line */}
+                                {routeLine && routeLine.length > 0 && (
+                                    <Polyline positions={routeLine} pathOptions={{ color: '#facc15', weight: 5, opacity: 0.85 }} />
+                                )}
+
+                                {/* Driver Car Icon */}
+                                {driverPos && driverVisible && booking.status !== 'completed' && (
+                                    <Marker position={driverPos} icon={carIcon}>
+                                        <Popup><b>🚕 Your Driver</b><br />{booking.driverName || 'Driver'}</Popup>
+                                    </Marker>
+                                )}
+                            </MapContainer>
+                        </div>
+                    </div>
+                )}
 
                 {/* Booking Details Card */}
                 <div className="track-card booking-card">

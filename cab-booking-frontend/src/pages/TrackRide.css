@@ -544,3 +544,22 @@
 .check-icon {
     font-size: 18px;
 }
+
+/* ── Map Card ── */
+.map-card {
+    border: 1px solid rgba(250, 204, 21, 0.2);
+}
+
+.car-marker-icon {
+    background: none !important;
+    border: none !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: car-bounce 1.5s ease-in-out infinite;
+}
+
+@keyframes car-bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+}
