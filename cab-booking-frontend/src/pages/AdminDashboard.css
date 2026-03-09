@@ -22,26 +22,25 @@
 }
 
 .admin-layout {
-    display: flex;
-    padding-top: 80px; /* Space for Navbar */
+    display: grid;
+    grid-template-columns: var(--sidebar-width) 1fr;
     min-height: 100vh;
     width: 100%;
+    padding-top: 80px; /* Space for Navbar */
+    background: var(--bg-light);
 }
 
-/* ── Fixed Sidebar ── */
+/* ── Sidebar ── */
 .admin-sidebar {
-    width: var(--sidebar-width);
-    min-width: var(--sidebar-width);
     background: var(--sidebar-bg) !important;
     height: calc(100vh - 80px);
-    position: fixed;
+    position: sticky;
     top: 80px;
-    left: 0;
-    z-index: 1050; /* Above regular content, below modals, aligned with navbar z-index */
+    z-index: 100;
     border-right: 1px solid rgba(255, 255, 255, 0.05);
-    transition: transform 0.3s ease;
+    transition: all 0.3s ease;
     padding: 24px 0;
-    border-radius: 0 20px 20px 0; /* Only right side rounded if floating look is desired */
+    width: 100%; /* Occupy full grid column */
 }
 
 .sidebar-branding {
@@ -96,21 +95,19 @@
 }
 
 /* ── Main Content Offset ── */
+/* ── Main Content Area ── */
 .admin-main-content {
-    flex: 1;
-    margin-left: var(--sidebar-width);
     padding: 40px;
     min-width: 0;
     background: var(--bg-light);
     display: flex;
     flex-direction: column;
-    width: calc(100% - var(--sidebar-width));
 }
 
 .admin-view {
     width: 100%;
-    max-width: 1200px;
-    margin: 0; /* Avoid margin auto colliding with fixed sidebar */
+    max-width: 1400px;
+    margin: 0;
 }
 
 .main-title-admin {
@@ -370,21 +367,27 @@
 }
 
 @media (max-width: 1024px) {
+    .admin-layout {
+        display: block; /* Stack on mobile */
+        grid-template-columns: 1fr;
+    }
     .admin-sidebar {
+        position: fixed;
+        width: var(--sidebar-width);
         transform: translateX(-100%);
         z-index: 1100;
         box-shadow: 10px 0 30px rgba(0,0,0,0.5);
         height: 100vh;
         top: 0;
+        border-radius: 0;
     }
     .admin-sidebar.visible {
         transform: translateX(0);
     }
     .admin-main-content {
-        margin-left: 0 !important;
         padding: 20px;
         width: 100%;
-        padding-top: 100px;
+        padding-top: 100px; /* Space for Navbar + Toggle */
     }
     .mobile-sidebar-toggle {
         display: flex;
